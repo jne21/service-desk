@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
+use App\Models\TicketStatus;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,5 +21,29 @@ class TicketController extends Controller
         return Inertia::render('Tickets/Index', [
             'tickets' => $tickets,
         ]);
+    }
+
+    public function create(): Response
+    {
+        $statuses = TicketStatus::query()
+            ->orderBy('sort_order')
+            ->get(['id', 'name']);
+
+        return Inertia::render('Tickets/Create', [
+            'statuses' => $statuses,
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'status_id' => ['required', 'exists:ticket_statuses,id'],
+        ]);
+
+        Ticket::create($validated);
+
+        return redirect()->route('tickets.index');
     }
 }

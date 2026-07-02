@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 
 defineProps({
     tickets: Array,
@@ -21,6 +21,14 @@ defineProps({
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900">
+                        <div class="mb-4">
+                            <Link
+                                :href="route('tickets.create')"
+                                class="rounded bg-gray-800 px-4 py-2 text-white"
+                            >
+                                Create ticket
+                            </Link>
+                        </div>
                         <table class="min-w-full">
                             <thead>
                                 <tr>
