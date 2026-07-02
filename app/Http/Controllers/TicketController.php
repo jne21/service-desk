@@ -46,4 +46,13 @@ class TicketController extends Controller
 
         return redirect()->route('tickets.index');
     }
+
+    public function show(Ticket $ticket): Response
+    {
+        $ticket->load('status');
+
+        return Inertia::render('Tickets/Show', [
+            'ticket' => $ticket,
+        ]);
+    }
 }

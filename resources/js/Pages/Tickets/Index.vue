@@ -42,7 +42,14 @@ defineProps({
                             <tbody>
                                 <tr v-for="ticket in tickets" :key="ticket.id">
                                     <td>{{ ticket.id }}</td>
-                                    <td>{{ ticket.title }}</td>
+                                    <td>
+                                        <Link
+                                            :href="route('tickets.show', ticket.id)"
+                                            class="text-blue-600 underline"
+                                        >
+                                            {{ ticket.title }}
+                                        </Link>
+                                    </td>
                                     <td>{{ ticket.status?.name }}</td>
                                     <td>{{ ticket.created_at }}</td>
                                 </tr>
