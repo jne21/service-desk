@@ -49,7 +49,7 @@ class TicketController extends Controller
 
     public function show(Ticket $ticket): Response
     {
-        $ticket->load(['status', 'user', 'department', 'role']);
+        $ticket->load(['status', 'user', 'department']);
 
         $statuses = TicketStatus::query()
             ->orderBy('sort_order')
