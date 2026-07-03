@@ -27,9 +27,6 @@ const submit = () => {
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
                     Ticket #{{ ticket.id }}
                 </h2>
-                <div class="mb-6 text-sm text-gray-600">
-                    Created by: {{ ticket.user?.name || '—' }}
-                </div>
                 <Link
                     :href="route('tickets.index')"
                     class="text-sm text-gray-600 underline"
@@ -43,6 +40,9 @@ const submit = () => {
             <div class="mx-auto max-w-4xl sm:px-6 lg:px-8">
                 <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900">
+                        <div class="mb-6 text-sm text-gray-600">
+                            Created by: {{ ticket.user?.name || '—' }}
+                        </div>
                         <form @submit.prevent="submit" class="space-y-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">
