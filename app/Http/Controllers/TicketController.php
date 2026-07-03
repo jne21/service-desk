@@ -45,8 +45,8 @@ class TicketController extends Controller
         Ticket::create($validated);
 
         return redirect()
-            ->route('tickets.index', $ticket)
-            ->with('success', 'Заявку оновлено');
+            ->route('tickets.index')
+            ->with('success', 'Заявку створено');
     }
 
     public function show(Ticket $ticket): Response
@@ -74,7 +74,7 @@ class TicketController extends Controller
         $ticket->update($validated);
 
         return redirect()
-            ->route('tickets.index', $ticket)
+            ->route('tickets.index')
             ->with('success', 'Заявку оновлено');
     }
 }
