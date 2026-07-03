@@ -27,7 +27,9 @@ const submit = () => {
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
                     Ticket #{{ ticket.id }}
                 </h2>
-
+                <div class="mb-6 text-sm text-gray-600">
+                    Created by: {{ ticket.user?.name || '—' }}
+                </div>
                 <Link
                     :href="route('tickets.index')"
                     class="text-sm text-gray-600 underline"

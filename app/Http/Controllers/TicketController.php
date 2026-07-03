@@ -14,7 +14,7 @@ class TicketController extends Controller
     public function index(): Response
     {
         $tickets = Ticket::query()
-            ->with('status')
+            ->with('status', 'user')
             ->latest()
             ->get();
 
