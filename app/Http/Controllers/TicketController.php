@@ -36,7 +36,10 @@ class TicketController extends Controller
 
     public function store(TicketRequest $request): RedirectResponse
     {
-        Ticket::create($request->validated());
+        Ticket::create([
+            ...$request->validated(),
+            'user_id' => $request->user()->id,
+        ]);
 
         return redirect()
             ->route('tickets.index')
