@@ -71,6 +71,6 @@ class TicketController extends Controller
 
         $ticket->update($validated);
 
-        return redirect()->route('tickets.show', $ticket);
+        return redirect()->route('tickets.index', $ticket);
     }
 }
