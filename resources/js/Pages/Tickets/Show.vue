@@ -41,7 +41,7 @@ const submit = () => {
                 <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900">
                         <div class="mb-6 text-sm text-gray-600">
-                            Created by: {{ ticket.user?.name || '—' }}
+                            Created by: {{ ticket.user?.name || '—' }} {{ ticket.user?.department?.name || '' }} <span v-if="ticket.user?.role?.name">({{ ticket.user.role.name }})</span>
                         </div>
                         <div class="mb-6 text-sm text-gray-600">
                             Department: {{ ticket.department?.name || '—' }}
