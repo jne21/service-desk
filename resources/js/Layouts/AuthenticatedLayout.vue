@@ -190,7 +190,15 @@ const showingNavigationDropdown = ref(false);
             </header>
 
             <!-- Page Content -->
-            <main>
+            <div
+                v-if="$page.props.flash?.success"
+                class="mx-auto mt-6 max-w-7xl sm:px-6 lg:px-8"
+            >
+                <div class="rounded bg-green-100 px-4 py-3 text-green-800">
+                    {{ $page.props.flash.success }}
+                </div>
+            </div>
+                    <main>
                 <slot />
             </main>
         </div>
