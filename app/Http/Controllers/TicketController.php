@@ -51,8 +51,26 @@ class TicketController extends Controller
     {
         $ticket->load('status');
 
+        $statuses = TicketStatus::query()
+            ->orderBy('sort_order')
+            ->get(['id', 'name']);
+
         return Inertia::render('Tickets/Show', [
             'ticket' => $ticket,
+            'statuses' => $statuses,
         ]);
+    }
+
+    public function update(Request $request, Ticket $ticket): RedirectResponse
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'status_id' => ['required', 'exists:ticket_statuses,id'],
+        ]);
+
+        $ticket->update($validated);
+
+        return redirect()->route('tickets.show', $ticket);
     }
 }
