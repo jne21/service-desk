@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ticket;
 use App\Models\TicketStatus;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use App\Http\Requests\TicketRequest;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -34,15 +34,9 @@ class TicketController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(TicketRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'status_id' => ['required', 'exists:ticket_statuses,id'],
-        ]);
-
-        Ticket::create($validated);
+        Ticket::create($request->validated());
 
         return redirect()
             ->route('tickets.index')
@@ -63,15 +57,9 @@ class TicketController extends Controller
         ]);
     }
 
-    public function update(Request $request, Ticket $ticket): RedirectResponse
+    public function update(TicketRequest $request, Ticket $ticket): RedirectResponse
     {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'status_id' => ['required', 'exists:ticket_statuses,id'],
-        ]);
-
-        $ticket->update($validated);
+        $ticket->update($request->validated());
 
         return redirect()
             ->route('tickets.index')
