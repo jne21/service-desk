@@ -13,6 +13,7 @@ class Ticket extends Model
         'description',
         'status_id',
         'user_id',
+        'department_id',
     ];
 
     public function status(): BelongsTo
@@ -23,5 +24,10 @@ class Ticket extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 }

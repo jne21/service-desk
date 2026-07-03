@@ -43,6 +43,9 @@ const submit = () => {
                         <div class="mb-6 text-sm text-gray-600">
                             Created by: {{ ticket.user?.name || '—' }}
                         </div>
+                        <div class="mb-6 text-sm text-gray-600">
+                            Department: {{ ticket.department?.name || '—' }}
+                        </div>
                         <form @submit.prevent="submit" class="space-y-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">

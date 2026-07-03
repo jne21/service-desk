@@ -14,7 +14,7 @@ class TicketController extends Controller
     public function index(): Response
     {
         $tickets = Ticket::query()
-            ->with('status', 'user')
+            ->with('status', 'user', 'department')
             ->latest()
             ->get();
 
@@ -39,6 +39,7 @@ class TicketController extends Controller
         Ticket::create([
             ...$request->validated(),
             'user_id' => $request->user()->id,
+            'department_id' => $request->user()->department_id,
         ]);
 
         return redirect()
@@ -48,7 +49,7 @@ class TicketController extends Controller
 
     public function show(Ticket $ticket): Response
     {
-        $ticket->load(['status', 'user']);
+        $ticket->load(['status', 'user', 'department']);
 
         $statuses = TicketStatus::query()
             ->orderBy('sort_order')

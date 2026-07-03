@@ -37,6 +37,7 @@ defineProps({
                                     <th class="text-left">Status</th>
                                     <th class="text-left">Created</th>
                                     <th class="text-left">Author</th>
+                                    <th class="text-left">Department</th>
                                 </tr>
                             </thead>
 
@@ -54,6 +55,7 @@ defineProps({
                                     <td>{{ ticket.status?.name }}</td>
                                     <td>{{ ticket.created_at }}</td>
                                     <td>{{ ticket.user?.name || '—' }}</td>
+                                    <td>{{ ticket.department?.name || '—' }}</td>
                                 </tr>
                             </tbody>
                         </table>
