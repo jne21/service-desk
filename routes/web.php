@@ -27,6 +27,13 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
+
+    Route::middleware(['auth', 'admin'])->group(function () {
+        Route::get('/admin', function () {
+            return 'Admin area';
+        })->name('admin.index');
+    });
+    
     Route::get('/tickets', [TicketController::class, 'index'])
         ->name('tickets.index');
 
