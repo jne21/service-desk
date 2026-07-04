@@ -56,16 +56,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/users', [UserController::class, 'index'])
         ->name('admin.users.index');
 
-    Route::get('/admin/users/create', [TicketController::class, 'create'])
+    Route::get('/admin/users/create', [UserController::class, 'create'])
         ->name('admin.users.create');
 
-    Route::get('/admin/users/store', [TicketController::class, 'store'])
+    Route::get('/admin/users/store', [UserController::class, 'store'])
         ->name('admin.users.store');
 
-    Route::get('/admin/users/show', [TicketController::class, 'show'])
+    Route::get('/admin/users/show', [UserController::class, 'show'])
         ->name('admin.users.show');
 
-    Route::get('/admin/users/update', [TicketController::class, 'update'])
+    Route::get('/admin/users/update', [UserController::class, 'update'])
         ->name('admin.users.update');
 
 });
