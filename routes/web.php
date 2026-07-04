@@ -59,13 +59,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/users/create', [TicketController::class, 'create'])
         ->name('admin.users.create');
 
-    Route::get('/admin/users/create', [TicketController::class, 'store'])
+    Route::get('/admin/users/store', [TicketController::class, 'store'])
         ->name('admin.users.store');
 
-    Route::get('/admin/users/create', [TicketController::class, 'show'])
+    Route::get('/admin/users/show', [TicketController::class, 'show'])
         ->name('admin.users.show');
 
-    Route::get('/admin/users/create', [TicketController::class, 'update'])
+    Route::get('/admin/users/update', [TicketController::class, 'update'])
         ->name('admin.users.update');
 
 });
