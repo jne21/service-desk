@@ -3,8 +3,9 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
-    ticket: Object,
-    statuses: Array,
+    user: Object,
+    roles: Array,
+    departments: Array,
 });
 
 const form = useForm({
