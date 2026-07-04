@@ -5,14 +5,14 @@ namespace App\Policies;
 use App\Models\Ticket;
 use App\Models\User;
 
-class TicketPolicy
+class UserPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->isAdmin();
     }
 
-    public function view(User $user, Ticket $ticket): bool
+    public function view(User $user, User $target): bool
     {
         if ($user->isAdmin()) {
             return true;
@@ -21,7 +21,7 @@ class TicketPolicy
         return false;
     }
 
-    public function update(User $user, Ticket $ticket): bool
+    public function update(User $user, User $target): bool
     {
         if ($user->isAdmin()) {
             return true;
