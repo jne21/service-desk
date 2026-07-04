@@ -20,6 +20,8 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    private const ROLE_ADMIN_ID = 1;
+
     /**
      * Get the attributes that should be cast.
      *
@@ -50,7 +52,7 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->role_id === 1;
+        return $this->role_id === self::ROLE_ADMIN_ID;
     }
     
 }
