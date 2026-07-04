@@ -6,7 +6,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
-import { formatDate } from './Utils/dateFormat';
+import { formatDate } from './Utils/formatDate';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
