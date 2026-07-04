@@ -27,7 +27,7 @@ class TicketController extends Controller
         $tickets = $query->get();
 
         return Inertia::render('Tickets/Index', [
-            'tickets' => $tickets,
+            'tickets' => $query->paginate(20),
         ]);
     }
 

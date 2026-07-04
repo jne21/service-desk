@@ -42,7 +42,7 @@ defineProps({
                             </thead>
 
                             <tbody>
-                                <tr v-for="ticket in tickets" :key="ticket.id">
+                                <tr v-for="ticket in tickets.data" :key="ticket.id">
                                     <td>{{ ticket.id }}</td>
                                     <td>
                                         <Link
