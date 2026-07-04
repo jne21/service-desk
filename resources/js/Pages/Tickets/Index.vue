@@ -53,7 +53,7 @@ defineProps({
                                         </Link>
                                     </td>
                                     <td>{{ ticket.status?.name }}</td>
-                                    <td>{{ $formatDate(ticket.created_at) }}</td>
+                                    <td class="table-date">{{ $formatDate(ticket.created_at) }}</td>
                                     <td>{{ ticket.user?.name || '—' }}</td>
                                     <td>{{ ticket.department?.name || '—' }}</td>
                                 </tr>
