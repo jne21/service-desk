@@ -1,5 +1,5 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 
 defineProps({
@@ -10,7 +10,7 @@ defineProps({
 <template>
     <Head title="Users" />
 
-    <AuthenticatedLayout>
+    <AdmindLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
                 Users
@@ -78,5 +78,5 @@ defineProps({
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </AdmindLayout>
 </template>

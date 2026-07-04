@@ -1,5 +1,5 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 defineProps({
@@ -21,7 +21,7 @@ const submit = () => {
 <template>
     <Head title="Create User" />
 
-    <AuthenticatedLayout>
+    <AdminLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
                 Create User
@@ -118,5 +118,5 @@ const submit = () => {
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>
