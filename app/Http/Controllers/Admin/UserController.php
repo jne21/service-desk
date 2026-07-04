@@ -23,7 +23,7 @@ class UserController extends Controller
 
         $users = $query->get();
 
-        return Inertia::render('Users/Index', [
+        return Inertia::render('Admin/Users/Index', [
             'users' => $query->paginate(20),
         ]);
     }
@@ -38,7 +38,7 @@ class UserController extends Controller
             ->orderBy('id')
             ->get(['id', 'name']);
 
-        return Inertia::render('Users/Create', [
+        return Inertia::render('Admin/Users/Create', [
             'departments' => $departments,
             'roles' => $roles,
         ]);
@@ -69,7 +69,7 @@ class UserController extends Controller
             ->orderBy('id')
             ->get(['id', 'name']);
 
-        return Inertia::render('Users/Show', [
+        return Inertia::render('Admin/Users/Show', [
             'user' => $user,
             'departments' => $departments,
             'roles' => $roles,
