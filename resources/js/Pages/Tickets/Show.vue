@@ -122,12 +122,12 @@ const submit = () => {
                         <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
                             <div>
                                 <div class="text-gray-500">Created</div>
-                                <div>{{ ticket.created_at }}</div>
+                                <div>{{ $formatDate(ticket.created_at) }}</div>
                             </div>
 
                             <div>
                                 <div class="text-gray-500">Updated</div>
-                                <div>{{ ticket.updated_at }}</div>
+                                <div>{{ $formatDate(ticket.updated_at) }}</div>
                             </div>
                         </div>
 

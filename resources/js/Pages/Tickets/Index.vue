@@ -53,13 +53,13 @@ defineProps({
                                         </Link>
                                     </td>
                                     <td>{{ ticket.status?.name }}</td>
-                                    <td>{{ ticket.created_at }}</td>
+                                    <td>{{ $formatDate(ticket.created_at) }}</td>
                                     <td>{{ ticket.user?.name || '—' }}</td>
                                     <td>{{ ticket.department?.name || '—' }}</td>
                                 </tr>
                             </tbody>
                         </table>
-                        
+
                         <div v-if="tickets.links.length > 3" class="mt-6 flex flex-wrap gap-2">
                             <Link
                                 v-for="link in tickets.links"
