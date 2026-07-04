@@ -10,7 +10,7 @@ defineProps({
 <template>
     <Head title="Users" />
 
-    <AdmindLayout>
+    <AdminLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
                 Users
@@ -78,5 +78,5 @@ defineProps({
                 </div>
             </div>
         </div>
-    </AdmindLayout>
+    </AdminLayout>
 </template>
