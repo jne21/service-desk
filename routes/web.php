@@ -48,26 +48,28 @@ Route::middleware(['auth'])->group(function () {
         ->name('tickets.update');
 });
 
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/admin', function () {
-        return 'Admin area';
-    })->name('admin.index');
+Route::middleware(['auth', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/', function () {
+            return 'Admin area';
+        })->name('index');
 
-    Route::get('/admin/users', [UserController::class, 'index'])
-        ->name('admin.users.index');
+        Route::get('/users', [UserController::class, 'index'])
+            ->name('users.index');
 
-    Route::get('/admin/users/create', [UserController::class, 'create'])
-        ->name('admin.users.create');
+        Route::get('/users/create', [UserController::class, 'create'])
+            ->name('users.create');
 
-    Route::get('/admin/users/store', [UserController::class, 'store'])
-        ->name('admin.users.store');
+        Route::post('/users', [UserController::class, 'store'])
+            ->name('users.store');
 
-    Route::get('/admin/users/show', [UserController::class, 'show'])
-        ->name('admin.users.show');
+        Route::get('/users/{user}', [UserController::class, 'show'])
+            ->name('users.show');
 
-    Route::get('/admin/users/update', [UserController::class, 'update'])
-        ->name('admin.users.update');
-
-});
+        Route::patch('/users/{user}', [UserController::class, 'update'])
+            ->name('users.update');
+    });
 
 require __DIR__.'/auth.php';
