@@ -26,7 +26,7 @@ const submit = () => {
         <template #header>
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                    User #{{ ticket.id }}
+                    User #{{ user.id }}
                 </h2>
                 <Link
                     :href="route('admin.users.index')"
@@ -114,7 +114,7 @@ const submit = () => {
                                 </button>
 
                                 <Link
-                                    :href="route('tickets.index')"
+                                    :href="route('admin.users.index')"
                                     class="text-sm text-gray-600 underline"
                                 >
                                     Back to list
