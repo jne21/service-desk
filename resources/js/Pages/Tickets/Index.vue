@@ -59,8 +59,21 @@ defineProps({
                                 </tr>
                             </tbody>
                         </table>
-
-                        <div v-if="tickets.length === 0" class="mt-4">
+                        
+                        <div v-if="tickets.links.length > 3" class="mt-6 flex flex-wrap gap-2">
+                            <Link
+                                v-for="link in tickets.links"
+                                :key="link.label"
+                                :href="link.url || '#'"
+                                v-html="link.label"
+                                class="rounded border px-3 py-1 text-sm"
+                                :class="{
+                                    'bg-gray-800 text-white': link.active,
+                                    'text-gray-400 pointer-events-none': !link.url,
+                                }"
+                            />
+                        </div>
+                        <div v-if="tickets.data.length === 0" class="mt-4">
                             No tickets yet.
                         </div>
                     </div>
