@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\Admin\UserController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -28,12 +29,9 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth'])->group(function () {
 
-    Route::middleware(['auth', 'admin'])->group(function () {
-        Route::get('/admin', function () {
-            return 'Admin area';
-        })->name('admin.index');
-    });
-    
+    // admin area
+    // users
+    // tickets
     Route::get('/tickets', [TicketController::class, 'index'])
         ->name('tickets.index');
 
@@ -48,6 +46,28 @@ Route::middleware(['auth'])->group(function () {
     
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])
         ->name('tickets.update');
+});
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin', function () {
+        return 'Admin area';
+    })->name('admin.index');
+
+    Route::get('/admin/users', [UserController::class, 'index'])
+        ->name('admin.users.index');
+
+    Route::get('/admin/users/create', [TicketController::class, 'create'])
+        ->name('admin.users.create');
+
+    Route::get('/admin/users/create', [TicketController::class, 'store'])
+        ->name('admin.users.store');
+
+    Route::get('/admin/users/create', [TicketController::class, 'show'])
+        ->name('admin.users.show');
+
+    Route::get('/admin/users/create', [TicketController::class, 'update'])
+        ->name('admin.users.update');
+
 });
 
 require __DIR__.'/auth.php';
