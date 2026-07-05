@@ -19,8 +19,8 @@ class UserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user)],
-            'department_id' => ['required', 'exists:user_departments,id'],
-            'role_id' => ['required', 'exists:user_roles,id'],
+            'department_id' => ['required', 'exists:departments,id'],
+            'role_id' => ['required', 'exists:roles,id'],
             'password' => [
                 $this->isMethod('post') ? 'required' : 'nullable',
                 'string', 'min:8',
