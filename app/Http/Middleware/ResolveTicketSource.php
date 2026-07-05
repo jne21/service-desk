@@ -2,19 +2,41 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\TicketSource;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResolveTicketSource
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  Closure(Request): (Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
+        $token = $request->bearerToken();
+
+        if (! $token) {
+            $token = $request->header('X-Import-Token');
+        }
+
+        if (! $token) {
+            abort(401, 'Import token is missing.');
+        }
+
+        $sources = TicketSource::query()
+            ->where('is_active', true)
+            ->whereNotNull('api_token_hash')
+            ->get();
+
+        $source = $sources->first(function (TicketSource $source) use ($token) {
+            return Hash::check($token, $source->api_token_hash);
+        });
+
+        if (! $source) {
+            abort(401, 'Invalid import token.');
+        }
+
+        $request->attributes->set('ticket_source', $source);
+
         return $next($request);
     }
 }
