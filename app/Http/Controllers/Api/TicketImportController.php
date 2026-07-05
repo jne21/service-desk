@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\TicketSource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Http\Requests\Api\TicketImportRequest;
 
 class TicketImportController extends Controller
 {
-    public function store(Request $request): JsonResponse
+    public function store(TicketImportRequest $request): JsonResponse
     {
-        /** @var TicketSource $source */
         $source = $request->attributes->get('ticket_source');
+        $validated = $request->validated();
 
         return response()->json(
             [
@@ -22,6 +23,7 @@ class TicketImportController extends Controller
                     'code' => $source->code,
                     'name' => $source->name,
                 ],
+                'validated' => $validated,
             ],
             200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
         );
