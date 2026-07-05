@@ -14,14 +14,16 @@ class TicketImportController extends Controller
         /** @var TicketSource $source */
         $source = $request->attributes->get('ticket_source');
 
-        return response()->json([
-            'success' => true,
-            'source' => [
-                'id' => $source->id,
-                'code' => $source->code,
-                'name' => $source->name,
+        return response()->json(
+            [
+                'success' => true,
+                'source' => [
+                    'id' => $source->id,
+                    'code' => $source->code,
+                    'name' => $source->name,
+                ],
             ],
             200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
-        ]);
+        );
     }
 }
