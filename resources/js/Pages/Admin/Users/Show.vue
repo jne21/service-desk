@@ -2,6 +2,10 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import TextInput from '@/Components/TextInput.vue';
+
 const props = defineProps({
     user: Object,
     roles: Array,
@@ -124,9 +128,7 @@ const submit = () => {
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">
-                                    Password
-                                </label>
+                                <InputLabel for="password" value="Password" />
 
                                 <TextInput
                                     id="password"
@@ -136,9 +138,7 @@ const submit = () => {
                                     autocomplete="new-password"
                                 />
 
-                                <div v-if="form.errors.password" class="mt-1 text-sm text-red-600">
-                                    {{ form.errors.password }}
-                                </div>
+                                <InputError class="mt-2" :message="form.errors.password" />
                             </div>
 
                             <div>
