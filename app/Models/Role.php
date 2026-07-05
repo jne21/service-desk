@@ -9,6 +9,7 @@ class Role extends Model
 {
     protected $fillable = [
         'name',
+        'home_route',
     ];
 
     public function users(): HasMany

@@ -43,6 +43,12 @@ class User extends Authenticatable
         ];
     }
 
+    public function homeRoute(): string
+    {
+        return $this->role()
+            ->value('home_route') ?: 'dashboard';
+    }
+    
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
