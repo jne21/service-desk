@@ -124,7 +124,9 @@ const submit = () => {
                             </div>
 
                             <div>
-                                <InputLabel for="password" value="Password" />
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Password
+                                </label>
 
                                 <TextInput
                                     id="password"
@@ -134,7 +136,9 @@ const submit = () => {
                                     autocomplete="new-password"
                                 />
 
-                                <InputError class="mt-2" :message="form.errors.password" />
+                                <div v-if="form.errors.password" class="mt-1 text-sm text-red-600">
+                                    {{ form.errors.password }}
+                                </div>
                             </div>
 
                             <div>
