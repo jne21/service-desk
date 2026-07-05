@@ -21,6 +21,7 @@ class TicketImportController extends Controller
                 'code' => $source->code,
                 'name' => $source->name,
             ],
+            200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
         ]);
     }
 }
