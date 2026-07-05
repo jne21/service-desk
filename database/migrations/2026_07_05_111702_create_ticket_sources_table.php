@@ -13,10 +13,14 @@ return new class extends Migration
     {
         Schema::create('ticket_sources', function (Blueprint $table) {
             $table->id();
+            $table->string('code')->unique();
+            $table->string('name');
+            $table->string('api_token_hash')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
-
+    
     /**
      * Reverse the migrations.
      */
