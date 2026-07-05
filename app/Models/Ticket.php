@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\User;
+use App\Models\TicketSource;
 
 class Ticket extends Model
 {
@@ -14,6 +15,8 @@ class Ticket extends Model
         'status_id',
         'user_id',
         'department_id',
+        'source_id',
+        'external_id',
     ];
 
     public function status(): BelongsTo
@@ -30,4 +33,10 @@ class Ticket extends Model
     {
         return $this->belongsTo(Department::class);
     }
+
+    public function source(): BelongsTo
+    {
+        return $this->belongsTo(TicketSource::class, 'source_id');
+    }
+    
 }
