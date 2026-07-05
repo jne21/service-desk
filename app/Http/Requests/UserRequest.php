@@ -23,7 +23,7 @@ class UserRequest extends FormRequest
             'role_id' => ['required', 'exists:roles,id'],
             'password' => [
                 $this->isMethod('post') ? 'required' : 'nullable',
-                'string', 'min:8',
+                'string', 'min:2',
                 'confirmed',
             ],
         ];
