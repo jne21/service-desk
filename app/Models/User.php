@@ -22,6 +22,14 @@ class User extends Authenticatable
 
     private const ROLE_ADMIN_ID = 1;
 
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role_id',
+        'department_id',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *
