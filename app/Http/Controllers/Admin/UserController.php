@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use App\Http\Requests\UserRequest;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\UserRequest;
 
 use App\Models\User;
 use App\Models\Role;
@@ -46,9 +48,11 @@ class UserController extends Controller
 
     public function store(UserRequest $request): RedirectResponse
     {
-        User::create([
-            ...$request->validated()
-        ]);
+        $validated = $request->validated();
+
+        $validated['password'] = Hash::make($validated['password']);
+
+        User::create($validated);
 
         return redirect()
             ->route('admin.users.index')
@@ -78,9 +82,15 @@ class UserController extends Controller
 
     public function update(UserRequest $request, User $user): RedirectResponse
     {
-        $this->authorize('update', $user);
+        $validated = $request->validated();
 
-        $user->update($request->validated());
+        if (! empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+
+        $user->update($validated);
 
         return redirect()
             ->route('admin.users.index')

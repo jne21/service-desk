@@ -9,8 +9,11 @@ defineProps({
 
 const form = useForm({
     name: '',
+    email: '',
     role_id: '',
     department_id: '',
+    password: '',
+    password_confirmation: '',
 });
 
 const submit = () => {
@@ -46,6 +49,22 @@ const submit = () => {
 
                                 <div v-if="form.errors.name" class="mt-1 text-sm text-red-600">
                                     {{ form.errors.name }}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Email
+                                </label>
+
+                                <input
+                                    v-model="form.email"
+                                    type="text"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                />
+
+                                <div v-if="form.errors.email" class="mt-1 text-sm text-red-600">
+                                    {{ form.errors.email }}
                                 </div>
                             </div>
 
@@ -95,6 +114,34 @@ const submit = () => {
                                 <div v-if="form.errors.status_id" class="mt-1 text-sm text-red-600">
                                     {{ form.errors.department_id }}
                                 </div>
+                            </div>
+
+                            <div>
+                                <InputLabel for="password" value="Password" />
+
+                                <TextInput
+                                    id="password"
+                                    type="password"
+                                    class="mt-1 block w-full"
+                                    v-model="form.password"
+                                    autocomplete="new-password"
+                                />
+
+                                <InputError class="mt-2" :message="form.errors.password" />
+                            </div>
+
+                            <div>
+                                <InputLabel for="password_confirmation" value="Confirm password" />
+
+                                <TextInput
+                                    id="password_confirmation"
+                                    type="password"
+                                    class="mt-1 block w-full"
+                                    v-model="form.password_confirmation"
+                                    autocomplete="new-password"
+                                />
+
+                                <InputError class="mt-2" :message="form.errors.password_confirmation" />
                             </div>
 
                             <div class="flex items-center gap-4">
