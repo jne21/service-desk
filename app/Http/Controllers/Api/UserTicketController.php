@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\Ticket;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+
+use App\Models\Ticket;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\TicketResource;
 
 class UserTicketController extends Controller
 {
@@ -42,7 +44,7 @@ class UserTicketController extends Controller
         return response()->json([
             'success' => true,
             'totalTime' => round(microtime(true) - $startedAt, 3),
-            'tickets' => $tickets,
+            'tickets' => TicketResource::collection($tickets),
         ], 200, [], JSON_UNESCAPED_UNICODE);
     }
 }
