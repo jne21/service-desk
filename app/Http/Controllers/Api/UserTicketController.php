@@ -8,9 +8,12 @@ use App\Models\Ticket;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TicketResource;
 use App\Http\Requests\Api\UserTicketIndexRequest;
+use App\Http\Controllers\Concerns\ApiResponses;
 
 class UserTicketController extends Controller
 {
+    use ApiResponses;
+
     public function index(UserTicketIndexRequest $request): JsonResponse
     {
         $startedAt = microtime(true);
@@ -44,8 +47,7 @@ class UserTicketController extends Controller
 
         $tickets = $query->paginate($perPage);
 
-        return response()->json([
-            'success' => true,
+        return $this->successResponse([
             'totalTime' => round(microtime(true) - $startedAt, 3),
             'tickets' => TicketResource::collection($tickets->items()),
             'pagination' => [
@@ -54,6 +56,6 @@ class UserTicketController extends Controller
                 'total' => $tickets->total(),
                 'lastPage' => $tickets->lastPage(),
             ],
-        ], 200, [], JSON_UNESCAPED_UNICODE);
+        ]);
     }
 }
