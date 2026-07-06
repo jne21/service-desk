@@ -39,13 +39,21 @@ class UserTicketController extends Controller
         if (! empty($validated['date_to'])) {
             $query->whereDate('created_at', '<=', $validated['date_to']);
         }
-        
-        $tickets = $query->get();
+
+        $perPage = $validated['per_page'] ?? 20;
+
+        $tickets = $query->paginate($perPage);
 
         return response()->json([
             'success' => true,
             'totalTime' => round(microtime(true) - $startedAt, 3),
-            'tickets' => TicketResource::collection($tickets),
+            'tickets' => TicketResource::collection($tickets->items()),
+            'pagination' => [
+                'currentPage' => $tickets->currentPage(),
+                'perPage' => $tickets->perPage(),
+                'total' => $tickets->total(),
+                'lastPage' => $tickets->lastPage(),
+            ],
         ], 200, [], JSON_UNESCAPED_UNICODE);
     }
 }
