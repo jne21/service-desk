@@ -19,7 +19,12 @@ class ResolveTicketSource
         }
 
         if (! $token) {
-            abort(401, 'Import token is missing.');
+            //abort(401, 'Import token is missing.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Import token is missing.',
+            ], 401, [], JSON_UNESCAPED_UNICODE);
+
         }
 
         $sources = TicketSource::query()

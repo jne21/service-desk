@@ -20,7 +20,11 @@ class TicketImportController extends Controller
         $source = $request->attributes->get('ticket_source');
 
         if (! $source) {
-            abort(401, 'Ticket source was not resolved.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Ticket source was not resolved.',
+            ], 401, [], JSON_UNESCAPED_UNICODE);
+            //abort(401, 'Ticket source was not resolved.');
         }
 
         $result = $ticketImportService->import(
