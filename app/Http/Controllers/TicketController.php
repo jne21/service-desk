@@ -18,13 +18,8 @@ class TicketController extends Controller
 
         $query = Ticket::query()
             ->with('status', 'user', 'department')
+            ->visibleFor($user)
             ->latest();
-
-        if (! $user->isAdmin()) {
-            $query->where('department_id', $user->department_id);
-        }
-
-        $tickets = $query->get();
 
         return Inertia::render('Tickets/Index', [
             'tickets' => $query->paginate(20),

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\User;
 use App\Models\TicketSource;
+use Illuminate\Database\Eloquent\Builder;
 
 class Ticket extends Model
 {
@@ -38,5 +39,13 @@ class Ticket extends Model
     {
         return $this->belongsTo(TicketSource::class, 'source_id');
     }
-    
+
+    public function scopeVisibleFor(Builder $query, User $user): Builder
+    {
+        if ($user->isAdmin()) {
+            return $query;
+        }
+
+        return $query->where('department_id', $user->department_id);
+    }
 }

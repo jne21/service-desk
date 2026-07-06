@@ -22,11 +22,8 @@ class UserTicketController extends Controller
                 'user',
                 'source',
             ])
+            ->visibleFor($user)
             ->latest();
-
-        if (! $user->isAdmin()) {
-            $query->where('department_id', $user->department_id);
-        }
 
         if ($request->filled('ticket_id')) {
             $query->where('id', $request->integer('ticket_id'));
