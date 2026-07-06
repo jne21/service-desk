@@ -3,19 +3,20 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 use App\Models\Ticket;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TicketResource;
+use App\Http\Requests\Api\UserTicketIndexRequest;
 
 class UserTicketController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(UserTicketIndexRequest $request): JsonResponse
     {
         $startedAt = microtime(true);
 
         $user = $request->user();
+        $validated = $request->validated();
 
         $query = Ticket::query()
             ->with([
@@ -27,18 +28,18 @@ class UserTicketController extends Controller
             ->visibleFor($user)
             ->latest();
 
-        if ($request->filled('ticket_id')) {
-            $query->where('id', $request->integer('ticket_id'));
+        if (! empty($validated['ticket_id'])) {
+            $query->where('id', $validated['ticket_id']);
         }
 
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->input('date_from'));
+        if (! empty($validated['date_from'])) {
+            $query->whereDate('created_at', '>=', $validated['date_from']);
         }
 
-        if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->input('date_to'));
+        if (! empty($validated['date_to'])) {
+            $query->whereDate('created_at', '<=', $validated['date_to']);
         }
-
+        
         $tickets = $query->get();
 
         return response()->json([
