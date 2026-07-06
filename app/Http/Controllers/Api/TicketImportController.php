@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\TicketImportRequest;
 use App\Models\TicketSource;
 use App\Services\TicketImportService;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\TicketImportRequest;
+use App\Http\Controllers\Concerns\ApiResponses;
+
 
 class TicketImportController extends Controller
 {
+    use ApiResponses;
+
     public function store(
         TicketImportRequest $request,
         TicketImportService $ticketImportService
@@ -20,10 +24,12 @@ class TicketImportController extends Controller
         $source = $request->attributes->get('ticket_source');
 
         if (! $source) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Ticket source was not resolved.',
-            ], 401, [], JSON_UNESCAPED_UNICODE);
+            return $this->errorResponse('Ticket source is not resolved.', 401);
+
+            //return response()->json([
+            //    'success' => false,
+            //    'message' => 'Ticket source was not resolved.',
+            //], 401, [], JSON_UNESCAPED_UNICODE);
             //abort(401, 'Ticket source was not resolved.');
         }
 
@@ -32,8 +38,7 @@ class TicketImportController extends Controller
             $request->validated('tickets')
         );
 
-        return response()->json([
-            'success' => true,
+        return $this->successResponse([
             'source' => [
                 'id' => $source->id,
                 'code' => $source->code,
@@ -41,6 +46,6 @@ class TicketImportController extends Controller
             ],
             'created' => $result['created'],
             'updated' => $result['updated'],
-        ], 200, [], JSON_UNESCAPED_UNICODE);
+        ]);
     }
 }
