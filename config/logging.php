@@ -127,6 +127,13 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // custom logs ============================
+        'ticket_import' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/ticket-import.log'),
+            'level' => 'info',
+        ],
+
     ],
 
 ];
