@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\TicketImportRequest;
-use App\Models\Ticket;
 use App\Models\TicketSource;
-use App\Models\TicketStatus;
-use Illuminate\Http\JsonResponse;
 use App\Services\TicketImportService;
 
 class TicketImportController extends Controller
