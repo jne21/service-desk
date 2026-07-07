@@ -25,17 +25,21 @@ class TicketImportController extends Controller
     {
         $source = $request->attributes->get('ticket_source');
 
-        if ($ticketImport->ticket_source_id !== $source->id) {
+        $ticketImport = TicketImport::query()
+            ->forSource($source)
+            ->whereKey($ticketImport->id)
+            ->with(['source', 'status'])
+            ->first();
+
+        if ($ticketImport === null) {
             return $this->errorResponse('Імпорт не знайдено.', 404);
         }
-
-        $ticketImport->load(['source', 'status']);
 
         return $this->successResponse([
             'import' => new TicketImportResource($ticketImport),
         ]);
     }
-
+    
     public function store(
         TicketImportRequest $request,
         TicketImportService $ticketImportService

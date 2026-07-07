@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class TicketImport extends Model
 {
@@ -39,5 +40,10 @@ class TicketImport extends Model
     public function status(): BelongsTo
     {
         return $this->belongsTo(TicketImportStatus::class, 'status_id');
+    }
+
+    public function scopeForSource(Builder $query, TicketSource $source): Builder
+    {
+        return $query->where('ticket_source_id', $source->id);
     }
 }
