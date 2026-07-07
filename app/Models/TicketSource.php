@@ -25,4 +25,9 @@ class TicketSource extends Model
     {
         return $this->hasMany(Ticket::class, 'source_id');
     }
+
+    public function imports(): HasMany
+    {
+        return $this->hasMany(TicketImport::class, 'ticket_source_id');
+    }
 }
