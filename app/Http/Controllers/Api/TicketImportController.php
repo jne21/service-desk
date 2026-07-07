@@ -36,14 +36,6 @@ class TicketImportController extends Controller
         }
 
         try {
-
-            $ticketImport = TicketImport::create([
-                'ticket_source_id' => $source->id,
-                'status_id' => TicketImportStatus::idByCode(TicketImportStatus::CODE_PROCESSING),
-                'tickets_count' => count($request->validated('tickets')),
-                'started_at' => now(),
-            ]);
-
             $tickets = $request->validated('tickets');
 
             $ticketImport = TicketImport::create([
