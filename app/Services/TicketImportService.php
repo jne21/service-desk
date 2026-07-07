@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Ticket;
 use App\Models\TicketSource;
 use App\Models\TicketStatus;
+use App\Events\TicketImportFinished;
 
 class TicketImportService
 {
@@ -58,14 +59,13 @@ class TicketImportService
                 ];
             });
 
-            Log::channel('ticket_import')->info('Ticket import finished', [
-                'source_id' => $source->id,
-                'source_code' => $source->code,
-                'created' => $result['created'],
-                'updated' => $result['updated'],
-                'duration' => round(microtime(true) - $startedAt, 3),
-            ]);
-
+            TicketImportFinished::dispatch(
+                source: $source,
+                created: $result['created'],
+                updated: $result['updated'],
+                duration: round(microtime(true) - $startedAt, 3),
+            );
+            
             return $result;
         } catch (\Throwable $e) {
             Log::channel('ticket_import')->error('Ticket import failed', [
