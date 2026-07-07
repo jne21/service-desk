@@ -2,11 +2,11 @@
 
 namespace App\Services;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 use App\Models\Ticket;
 use App\Models\TicketSource;
 use App\Models\TicketStatus;
+use App\Events\TicketImportStarted;
 use App\Events\TicketImportFinished;
 use app\Events\TicketImportFailed;
 
@@ -16,11 +16,10 @@ class TicketImportService
     {
         $startedAt = microtime(true);
 
-        Log::channel('ticket_import')->info('Ticket import started', [
-            'source_id' => $source->id,
-            'source_code' => $source->code,
-            'tickets_count' => count($tickets),
-        ]);
+        TicketImportStarted::dispatch(
+            source: $source,
+            ticketsCount: count($tickets),
+        );
 
         try {
             $result = DB::transaction(function () use ($source, $tickets) {
