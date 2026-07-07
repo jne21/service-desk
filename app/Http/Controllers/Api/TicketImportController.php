@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\JsonResponse;
 
 use App\Models\TicketSource;
+use App\Models\TicketImport;
+use App\Models\TicketImportStatus;
 use App\Services\TicketImportService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\TicketImportRequest;
@@ -34,10 +36,36 @@ class TicketImportController extends Controller
         }
 
         try {
-            $result = $ticketImportService->import(
-                $source,
-                $request->validated('tickets')
-            );
+
+            $ticketImport = TicketImport::create([
+                'ticket_source_id' => $source->id,
+                'status_id' => TicketImportStatus::idByCode(TicketImportStatus::CODE_PROCESSING),
+                'tickets_count' => count($request->validated('tickets')),
+                'started_at' => now(),
+            ]);
+
+            $tickets = $request->validated('tickets');
+
+            $ticketImport = TicketImport::create([
+                'ticket_source_id' => $source->id,
+                'status_id' => TicketImportStatus::idByCode(TicketImportStatus::CODE_PROCESSING),
+                'tickets_count' => count($tickets),
+                'started_at' => now(),
+            ]);
+
+            try {
+                $result = $ticketImportService->import(
+                    source: $source,
+                    tickets: $tickets,
+                    ticketImport: $ticketImport,
+                );
+            } catch (\Throwable $e) {
+                return $this->errorResponse(
+                    'Помилка під час імпорту заявок.',
+                    500
+                );
+            }
+
         } catch (\Throwable $e) {
             return $this->errorResponse(
                 'Помилка під час імпорту заявок.',
@@ -46,6 +74,7 @@ class TicketImportController extends Controller
         }
 
         return $this->successResponse([
+            'importId' => $ticketImport->id,
             'source' => [
                 'id' => $source->id,
                 'code' => $source->code,

@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Ticket;
 use App\Models\TicketSource;
 use App\Models\TicketStatus;
+use App\Models\TicketImport;
+use App\Models\TicketImportStatus;
 
 use App\Events\TicketImportStarted;
 use App\Events\TicketImportFinished;
@@ -14,7 +16,7 @@ use app\Events\TicketImportFailed;
 
 class TicketImportService
 {
-    public function import(TicketSource $source, array $tickets): array
+    public function import(TicketSource $source, array $tickets, TicketImport $ticketImport): array
     {
         $startedAt = microtime(true);
 
@@ -25,7 +27,6 @@ class TicketImportService
 
         try {
             $result = DB::transaction(function () use ($source, $tickets) {
-
                 $defaultStatusId = TicketStatus::query()
                     ->where('code', 'new')
                     ->value('id');
@@ -61,6 +62,14 @@ class TicketImportService
                 ];
             });
 
+            $ticketImport->update([
+                'status_id' => TicketImportStatus::idByCode(TicketImportStatus::CODE_FINISHED),
+                'created_count' => $result['created'],
+                'updated_count' => $result['updated'],
+                'failed_count' => 0,
+                'finished_at' => now(),
+            ]);
+
             TicketImportFinished::dispatch(
                 source: $source,
                 created: $result['created'],
@@ -70,12 +79,20 @@ class TicketImportService
 
             return $result;
         } catch (\Throwable $e) {
+            $ticketImport->update([
+                'status_id' => TicketImportStatus::idByCode(TicketImportStatus::CODE_FAILED),
+                'failed_count' => count($tickets),
+                'error_message' => $e->getMessage(),
+                'finished_at' => now(),
+            ]);
+
             TicketImportFailed::dispatch(
                 source: $source,
                 ticketsCount: count($tickets),
                 duration: round(microtime(true) - $startedAt, 3),
                 error: $e->getMessage(),
             );
+
             throw $e;
         }
     }

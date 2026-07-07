@@ -32,4 +32,11 @@ class TicketImportStatus extends Model
     {
         return $this->hasMany(TicketImport::class, 'status_id');
     }
+
+    public static function idByCode(string $code): int
+    {
+        return static::query()
+            ->where('code', $code)
+            ->valueOrFail('id');
+    }
 }
