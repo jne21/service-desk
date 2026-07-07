@@ -33,10 +33,17 @@ class TicketImportController extends Controller
             //abort(401, 'Ticket source was not resolved.');
         }
 
-        $result = $ticketImportService->import(
-            $source,
-            $request->validated('tickets')
-        );
+        try {
+            $result = $ticketImportService->import(
+                $source,
+                $request->validated('tickets')
+            );
+        } catch (\Throwable $e) {
+            return $this->errorResponse(
+                'Помилка під час імпорту заявок.',
+                500
+            );
+        }
 
         return $this->successResponse([
             'source' => [
