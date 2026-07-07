@@ -14,13 +14,14 @@ use App\Services\TicketImportService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\TicketImportRequest;
 use App\Http\Controllers\Concerns\ApiResponses;
+use App\Http\Resources\TicketImportResource;
 
 
 class TicketImportController extends Controller
 {
     use ApiResponses;
 
-    public function show(Request $request, TicketImport $ticketImport): JsonResponse
+    public function show(Request $request, TicketImport $ticketImport)
     {
         $source = $request->attributes->get('ticket_source');
 
@@ -31,28 +32,7 @@ class TicketImportController extends Controller
         $ticketImport->load(['source', 'status']);
 
         return $this->successResponse([
-            'import' => [
-                'id' => $ticketImport->id,
-                'source' => [
-                    'id' => $ticketImport->source->id,
-                    'code' => $ticketImport->source->code,
-                    'name' => $ticketImport->source->name,
-                ],
-                'status' => [
-                    'id' => $ticketImport->status->id,
-                    'code' => $ticketImport->status->code,
-                    'name' => $ticketImport->status->name,
-                    'isFinal' => $ticketImport->status->is_final,
-                ],
-                'ticketsCount' => $ticketImport->tickets_count,
-                'createdCount' => $ticketImport->created_count,
-                'updatedCount' => $ticketImport->updated_count,
-                'failedCount' => $ticketImport->failed_count,
-                'error' => $ticketImport->error_message,
-                'startedAt' => $ticketImport->started_at?->toDateTimeString(),
-                'finishedAt' => $ticketImport->finished_at?->toDateTimeString(),
-                'createdAt' => $ticketImport->created_at?->toDateTimeString(),
-            ],
+            'import' => new TicketImportResource($ticketImport),
         ]);
     }
 
