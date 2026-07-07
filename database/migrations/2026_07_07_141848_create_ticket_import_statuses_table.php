@@ -11,19 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        public function up(): void
-        {
-            Schema::create('ticket_import_statuses', function (Blueprint $table) {
-                $table->id();
+        Schema::create('ticket_import_statuses', function (Blueprint $table) {
+            $table->id();
 
-                $table->string('code', 50)->unique();
-                $table->string('name');
-                $table->unsignedInteger('sort_order')->default(0);
-                $table->boolean('is_final')->default(false);
+            $table->string('code', 50)->unique();
+            $table->string('name');
+            $table->unsignedInteger('sort_order')->default(0);
+            $table->boolean('is_final')->default(false);
 
-                $table->timestamps();
-            });
-        }
+            $table->timestamps();
+        });
     }
 
     /**
