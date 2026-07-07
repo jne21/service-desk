@@ -8,6 +8,7 @@ use App\Models\Ticket;
 use App\Models\TicketSource;
 use App\Models\TicketStatus;
 use App\Events\TicketImportFinished;
+use app\Events\TicketImportFailed;
 
 class TicketImportService
 {
@@ -68,14 +69,12 @@ class TicketImportService
 
             return $result;
         } catch (\Throwable $e) {
-            Log::channel('ticket_import')->error('Ticket import failed', [
-                'source_id' => $source->id,
-                'source_code' => $source->code,
-                'tickets_count' => count($tickets),
-                'duration' => round(microtime(true) - $startedAt, 3),
-                'error' => $e->getMessage(),
-            ]);
-
+            TicketImportFailed::dispatch(
+                source: $source,
+                ticketsCount: count($tickets),
+                duration: round(microtime(true) - $startedAt, 3),
+                error: $e->getMessage(),
+            );
             throw $e;
         }
     }
