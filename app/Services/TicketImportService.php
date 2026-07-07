@@ -65,7 +65,7 @@ class TicketImportService
                 updated: $result['updated'],
                 duration: round(microtime(true) - $startedAt, 3),
             );
-            
+
             return $result;
         } catch (\Throwable $e) {
             Log::channel('ticket_import')->error('Ticket import failed', [

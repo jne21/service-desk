@@ -3,24 +3,18 @@
 namespace App\Listeners;
 
 use App\Events\TicketImportFinished;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
 
 class LogTicketImportFinished
 {
-    /**
-     * Create the event listener.
-     */
-    public function __construct()
-    {
-        //
-    }
-
-    /**
-     * Handle the event.
-     */
     public function handle(TicketImportFinished $event): void
     {
-        //
+        Log::channel('ticket_import')->info('Ticket import finished', [
+            'source_id' => $event->source->id,
+            'source_code' => $event->source->code,
+            'created' => $event->created,
+            'updated' => $event->updated,
+            'duration' => $event->duration,
+        ]);
     }
 }
