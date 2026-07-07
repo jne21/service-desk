@@ -31,4 +31,9 @@ class TicketPolicy
         return $ticket->department_id !== null
             && $ticket->department_id === $user->department_id;
     }
+
+    public function create(User $user): bool
+    {
+        return true;
+    }
 }

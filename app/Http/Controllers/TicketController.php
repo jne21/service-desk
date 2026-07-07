@@ -28,6 +28,8 @@ class TicketController extends Controller
 
     public function create(): Response
     {
+        $this->authorize('create', Ticket::class);
+
         $statuses = TicketStatus::query()
             ->orderBy('sort_order')
             ->get(['id', 'name']);
@@ -39,6 +41,8 @@ class TicketController extends Controller
 
     public function store(TicketRequest $request): RedirectResponse
     {
+        $this->authorize('create', Ticket::class);
+        
         Ticket::create([
             ...$request->validated(),
             'user_id' => $request->user()->id,
@@ -52,7 +56,7 @@ class TicketController extends Controller
 
     public function show(Ticket $ticket): Response
     {
-        $this->authorize('update', $ticket);
+        $this->authorize('view', $ticket);
 
         $ticket->load(['status', 'user.role', 'department']);
 
