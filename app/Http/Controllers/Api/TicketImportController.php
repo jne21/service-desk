@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 use App\Models\TicketSource;
 use App\Models\TicketImport;
 use App\Models\TicketImportStatus;
+
 use App\Services\TicketImportService;
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\TicketImportRequest;
 use App\Http\Controllers\Concerns\ApiResponses;
@@ -16,6 +19,42 @@ use App\Http\Controllers\Concerns\ApiResponses;
 class TicketImportController extends Controller
 {
     use ApiResponses;
+
+    public function show(Request $request, TicketImport $ticketImport): JsonResponse
+    {
+        $source = $request->attributes->get('ticket_source');
+
+        if ($ticketImport->ticket_source_id !== $source->id) {
+            return $this->errorResponse('Імпорт не знайдено.', 404);
+        }
+
+        $ticketImport->load(['source', 'status']);
+
+        return $this->successResponse([
+            'import' => [
+                'id' => $ticketImport->id,
+                'source' => [
+                    'id' => $ticketImport->source->id,
+                    'code' => $ticketImport->source->code,
+                    'name' => $ticketImport->source->name,
+                ],
+                'status' => [
+                    'id' => $ticketImport->status->id,
+                    'code' => $ticketImport->status->code,
+                    'name' => $ticketImport->status->name,
+                    'isFinal' => $ticketImport->status->is_final,
+                ],
+                'ticketsCount' => $ticketImport->tickets_count,
+                'createdCount' => $ticketImport->created_count,
+                'updatedCount' => $ticketImport->updated_count,
+                'failedCount' => $ticketImport->failed_count,
+                'error' => $ticketImport->error_message,
+                'startedAt' => $ticketImport->started_at?->toDateTimeString(),
+                'finishedAt' => $ticketImport->finished_at?->toDateTimeString(),
+                'createdAt' => $ticketImport->created_at?->toDateTimeString(),
+            ],
+        ]);
+    }
 
     public function store(
         TicketImportRequest $request,
