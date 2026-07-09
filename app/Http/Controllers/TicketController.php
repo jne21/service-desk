@@ -30,9 +30,7 @@ class TicketController extends Controller
     {
         $this->authorize('create', Ticket::class);
 
-        $statuses = TicketStatus::query()
-            ->orderBy('sort_order')
-            ->get(['id', 'name']);
+        $statuses = TicketStatus::orderedCached();
 
         return Inertia::render('Tickets/Create', [
             'statuses' => $statuses,

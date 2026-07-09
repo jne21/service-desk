@@ -23,7 +23,7 @@ class TicketImportService
             'status_id' => TicketImportStatus::idByCode(TicketImportStatus::CODE_PROCESSING),
             'started_at' => now(),
         ]);
-        
+            
         TicketImportStarted::dispatch(
             source: $source,
             ticketsCount: count($tickets),
@@ -31,9 +31,8 @@ class TicketImportService
 
         try {
             $result = DB::transaction(function () use ($source, $tickets) {
-                $defaultStatusId = TicketStatus::query()
-                    ->where('code', 'new')
-                    ->value('id');
+
+                $defaultStatusId = TicketStatus::idByCode(TicketStatus::CODE_NEW);
 
                 $created = 0;
                 $updated = 0;
