@@ -1,58 +1,467 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Service Desk Demo
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Навчально-демонстраційний Laravel-проєкт невеликої service desk / ticket-системи.
 
-## About Laravel
+Проєкт створений як практична база для демонстрації роботи з Laravel, ролями користувачів, політиками доступу, API, імпортом заявок, чергами, Redis cache, Redis queue та базовою архітектурою backend-застосунку.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Стек
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.4
+- Laravel 13
+- Laravel Breeze
+- Vue
+- Inertia
+- MariaDB
+- Redis
+- Laravel Sanctum
+- Redis Queue
+- Redis Cache
+- Apache + PHP-FPM
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Реалізовано
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Користувачі, ролі та відділи
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+У системі є користувачі з ролями та прив’язкою до відділу.
 
-## Agentic Development
+Реалізовані ролі:
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- Адміністратор
+- Оператор
+- Керівник
 
-```bash
-composer require laravel/boost --dev
+У ролі є `home_route`, який визначає, куди користувач потрапляє після входу.
 
-php artisan boost:install
+Реалізовані відділи:
+
+- Відділ Електриків
+- Ремонтно-будівельний відділ
+- Ліфтери
+- Благоустрій
+
+---
+
+### Заявки
+
+Основна сутність системи — заявка.
+
+Поля заявки:
+
+- джерело заявки
+- зовнішній ID заявки
+- заголовок
+- опис
+- статус
+- користувач
+- відділ
+- дата створення
+- дата оновлення
+
+Заявки мають статуси:
+
+- Нова
+- В роботі
+- Виконана
+- Скасована
+
+---
+
+### Контроль доступу
+
+Доступ до заявок обмежений через `TicketPolicy` та scope `visibleFor()`.
+
+Логіка доступу:
+
+- адміністратор бачить усі заявки
+- користувач відділу бачить тільки заявки свого відділу
+- користувач без відділу не бачить заявки
+
+---
+
+### Web-інтерфейс
+
+Реалізовано базовий web-інтерфейс для роботи із заявками через Laravel Breeze, Vue та Inertia.
+
+Є маршрути для:
+
+- списку заявок
+- створення заявки
+- перегляду заявки
+- оновлення заявки
+
+---
+
+### API для заявок користувача
+
+Реалізовано API endpoint:
+
+```http
+GET /api/user/tickets
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Авторизація виконується через Laravel Sanctum.
 
-## Contributing
+Підтримуються фільтри:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- `ticket_id`
+- `date_from`
+- `date_to`
+- `per_page`
 
-## Code of Conduct
+API повертає тільки заявки, доступні поточному користувачу згідно з його роллю та відділом.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+### Джерела імпорту заявок
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Реалізовано сутність `ticket_sources`.
 
-## License
+Кожне джерело має:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- code
+- name
+- hashed API token
+- active/inactive status
+
+Авторизація import API виконується через middleware.
+
+Токен можна передавати через:
+
+```http
+Authorization: Bearer <token>
+```
+
+або:
+
+```http
+X-Import-Token: <token>
+```
+
+---
+
+### Імпорт заявок
+
+Реалізовано import API для зовнішніх систем.
+
+Синхронний імпорт:
+
+```http
+POST /api/tickets/import/sync
+```
+
+Асинхронний імпорт:
+
+```http
+POST /api/tickets/import
+```
+
+Приклад payload:
+
+```json
+{
+  "tickets": [
+    {
+      "ticket_id": "1001",
+      "title": "Тестова заявка API",
+      "description": "Перевірка імпорту",
+      "department_id": 1
+    }
+  ]
+}
+```
+
+Поле `ticket_id` із зовнішньої системи зберігається у БД як `external_id`.
+
+Для унікальності використовується пара:
+
+```text
+source_id + external_id
+```
+
+Якщо заявка з таким зовнішнім ID вже існує для цього джерела — вона оновлюється.
+
+Якщо не існує — створюється.
+
+---
+
+### Асинхронна обробка через Redis Queue
+
+Асинхронний імпорт працює через Laravel Queue з Redis backend.
+
+Контролер створює запис імпорту зі статусом `queued`, після чого ставить у чергу job `ImportTicketsJob`.
+
+Job викликає сервіс імпорту, який:
+
+- переводить імпорт у статус `processing`
+- створює або оновлює заявки
+- рахує створені та оновлені заявки
+- переводить імпорт у статус `finished`
+- у разі помилки переводить імпорт у статус `failed`
+
+---
+
+### Статуси імпорту
+
+Реалізовано довідник статусів імпорту:
+
+- `queued`
+- `processing`
+- `finished`
+- `failed`
+- `finished_with_errors`
+
+---
+
+### Діагностика імпорту
+
+Реалізовано endpoint:
+
+```http
+GET /api/tickets/imports/{ticketImport}
+```
+
+Він повертає інформацію про конкретний імпорт:
+
+- джерело
+- статус
+- кількість заявок
+- кількість створених
+- кількість оновлених
+- кількість помилок
+- текст помилки
+- час старту
+- час завершення
+
+Доступ до імпорту обмежений джерелом: джерело може бачити тільки власні імпорти.
+
+---
+
+### Redis Lock
+
+Для асинхронного імпорту додано lock по `source_id`.
+
+Це не дозволяє одночасно обробляти кілька імпортів одного джерела.
+
+Мета — уникнути race condition при паралельному оновленні одних і тих самих заявок.
+
+---
+
+### Rate Limit
+
+Для import API додано rate limit.
+
+Ліміт застосовується до конкретного `ticket_source`.
+
+Fallback — IP address.
+
+Rate limit підключено до:
+
+```http
+POST /api/tickets/import
+POST /api/tickets/import/sync
+```
+
+---
+
+### Redis Cache
+
+Реалізовано кешування довідників через Redis cache.
+
+Кешуються:
+
+- статуси заявок
+- статуси імпорту
+- ролі
+- відділи
+- ID статусів імпорту за code
+
+При зміні довідників кеш потрібно скидати.
+
+Базова команда:
+
+```bash
+php artisan cache:clear
+```
+
+---
+
+### Events та logging
+
+Для імпорту реалізовано events:
+
+- `TicketImportStarted`
+- `TicketImportFinished`
+- `TicketImportFailed`
+
+Для них створено listeners, які пишуть лог імпорту.
+
+Окремий log channel:
+
+```text
+ticket_import
+```
+
+Файл логів:
+
+```text
+storage/logs/ticket-import.log
+```
+
+---
+
+### Уніфіковані API-відповіді
+
+Реалізовано trait:
+
+```php
+App\Http\Controllers\Concerns\ApiResponses
+```
+
+Формат успішної відповіді:
+
+```json
+{
+  "success": true
+}
+```
+
+Формат помилки:
+
+```json
+{
+  "success": false,
+  "error": "Error message"
+}
+```
+
+---
+
+## Основні команди
+
+Встановлення залежностей:
+
+```bash
+composer install
+npm install
+```
+
+Міграції:
+
+```bash
+php artisan migrate
+```
+
+Сіди:
+
+```bash
+php artisan db:seed
+```
+
+Запуск frontend build:
+
+```bash
+npm run build
+```
+
+Запуск queue worker:
+
+```bash
+php artisan queue:work redis
+```
+
+Очистка кешів Laravel:
+
+```bash
+php artisan optimize:clear
+```
+
+Очистка application cache:
+
+```bash
+php artisan cache:clear
+```
+
+---
+
+## Змінні оточення
+
+Основні `.env` параметри:
+
+```env
+APP_NAME="Service Desk"
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=service_desk
+DB_USERNAME=
+DB_PASSWORD=
+
+CACHE_STORE=redis
+QUEUE_CONNECTION=redis
+
+REDIS_CLIENT=phpredis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+```
+
+---
+
+## Приклад import API request
+
+```bash
+curl -X POST http://localhost/api/tickets/import \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -H "X-Import-Token: test-import-token-123" \
+  -d '{
+    "tickets": [
+      {
+        "ticket_id": "1001",
+        "title": "Тестова заявка API",
+        "description": "Перевірка імпорту",
+        "department_id": 1
+      }
+    ]
+  }'
+```
+
+---
+
+## Поточний статус
+
+Проєкт уже можна використовувати як demo backend для:
+
+- Laravel roles / permissions
+- Laravel policies
+- API token middleware
+- Sanctum API
+- Redis queue
+- Redis cache
+- async jobs
+- import diagnostics
+- rate limiting
+- event/listener logging
+
+---
+
+## Найближчі можливі наступні кроки
+
+- додати `TicketStatus::idByCode()` з кешем
+- зробити scheduler для завислих імпортів у статусі `processing`
+- налаштувати `failed_jobs`
+- додати systemd service або supervisor для queue worker
+- додати endpoint списку імпортів
+- додати item-level diagnostics для імпортів
+- додати тести для API, policies та visibility scope
+- додати історію змін заявки
+- додати soft deletes там, де це буде потрібно
