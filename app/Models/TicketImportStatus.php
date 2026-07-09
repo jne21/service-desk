@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 
 class TicketImportStatus extends Model
 {
@@ -35,8 +36,11 @@ class TicketImportStatus extends Model
 
     public static function idByCode(string $code): int
     {
-        return static::query()
-            ->where('code', $code)
-            ->valueOrFail('id');
+        return Cache::rememberForever(
+            "ticket_import_status_id:{$code}",
+            fn () => static::query()
+                ->where('code', $code)
+                ->valueOrFail('id')
+        );
     }
 }
