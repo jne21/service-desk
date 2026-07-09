@@ -19,7 +19,11 @@ class TicketImportService
     public function import(TicketSource $source, array $tickets, TicketImport $ticketImport): array
     {
         $startedAt = microtime(true);
-
+        $ticketImport->update([
+            'status_id' => TicketImportStatus::idByCode(TicketImportStatus::CODE_PROCESSING),
+            'started_at' => now(),
+        ]);
+        
         TicketImportStarted::dispatch(
             source: $source,
             ticketsCount: count($tickets),

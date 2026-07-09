@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Bus;
 
 use App\Models\TicketSource;
 use App\Models\TicketImport;
@@ -15,6 +16,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\TicketImportRequest;
 use App\Http\Controllers\Concerns\ApiResponses;
 use App\Http\Resources\TicketImportResource;
+
+use App\Jobs\ImportTicketsJob;
 
 
 class TicketImportController extends Controller
@@ -102,9 +105,27 @@ class TicketImportController extends Controller
 
     public function storeAsync(TicketImportRequest $request)
     {
-        return $this->errorResponse(
-            'Асинхронний імпорт ще не реалізовано.',
-            501
+        $source = $request->attributes->get('ticket_source');
+
+        $tickets = $request->validated('tickets');
+
+        $ticketImport = TicketImport::create([
+            'ticket_source_id' => $source->id,
+            'status_id' => TicketImportStatus::idByCode(TicketImportStatus::CODE_QUEUED),
+            'tickets_count' => count($tickets),
+        ]);
+
+        Bus::dispatch(
+            new ImportTicketsJob(
+                ticketSourceId: $source->id,
+                ticketImportId: $ticketImport->id,
+                tickets: $tickets,
+            )
         );
-    }
-}
+
+        return $this->successResponse([
+            'importId' => $ticketImport->id,
+            'status' => 'queued',
+        ]
+    );
+}}
