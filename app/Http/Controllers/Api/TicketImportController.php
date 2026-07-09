@@ -40,7 +40,7 @@ class TicketImportController extends Controller
         ]);
     }
     
-    public function store(
+    public function storeSync(
         TicketImportRequest $request,
         TicketImportService $ticketImportService
     ): JsonResponse
@@ -98,5 +98,13 @@ class TicketImportController extends Controller
             'created' => $result['created'],
             'updated' => $result['updated'],
         ]);
+    }
+
+    public function storeAsync(TicketImportRequest $request)
+    {
+        return $this->errorResponse(
+            'Асинхронний імпорт ще не реалізовано.',
+            501
+        );
     }
 }
