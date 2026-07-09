@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class TicketImportStatus extends Model
@@ -41,6 +42,16 @@ class TicketImportStatus extends Model
             fn () => static::query()
                 ->where('code', $code)
                 ->valueOrFail('id')
+        );
+    }
+
+    public static function orderedCached(): Collection
+    {
+        return Cache::rememberForever(
+            'ticket_import_statuses:ordered',
+            fn () => static::query()
+                ->orderBy('sort_order')
+                ->get(['id', 'code', 'name', 'sort_order', 'is_final'])
         );
     }
 }

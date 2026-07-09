@@ -32,13 +32,8 @@ class UserController extends Controller
 
     public function create(): Response
     {
-        $departments = Department::query()
-            ->orderBy('name')
-            ->get(['id', 'name']);
-
-            $roles = Role::query()
-            ->orderBy('id')
-            ->get(['id', 'name']);
+        $departments = Department::orderedCached();
+        $roles = Role::orderedCached();
 
         return Inertia::render('Admin/Users/Create', [
             'departments' => $departments,
@@ -65,13 +60,8 @@ class UserController extends Controller
 
         $user->load(['role', 'department']);
 
-        $departments = Department::query()
-            ->orderBy('name')
-            ->get(['id', 'name']);
-
-        $roles = Role::query()
-            ->orderBy('id')
-            ->get(['id', 'name']);
+        $departments = Department::orderedCached();
+        $roles = Role::orderedCached();
 
         return Inertia::render('Admin/Users/Show', [
             'user' => $user,
