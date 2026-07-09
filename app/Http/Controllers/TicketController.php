@@ -60,9 +60,7 @@ class TicketController extends Controller
 
         $ticket->load(['status', 'user.role', 'department']);
 
-        $statuses = TicketStatus::query()
-            ->orderBy('sort_order')
-            ->get(['id', 'name']);
+        $statuses = TicketStatus::orderedCached();
 
         return Inertia::render('Tickets/Show', [
             'ticket' => $ticket,
