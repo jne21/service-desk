@@ -129,6 +129,7 @@ class TicketImportController extends Controller
             ],
             'created' => $result['created'],
             'updated' => $result['updated'],
+            'restored' => $result['restored'],
         ]);
     }
 

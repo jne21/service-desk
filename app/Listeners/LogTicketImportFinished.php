@@ -14,6 +14,7 @@ class LogTicketImportFinished
             'source_code' => $event->source->code,
             'created' => $event->created,
             'updated' => $event->updated,
+            'restored' => $event->restored,
             'duration' => $event->duration,
         ]);
     }

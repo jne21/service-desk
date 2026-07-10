@@ -80,7 +80,7 @@ class TicketImportService
                 return [
                     'created' => $created,
                     'updated' => $updated,
-                    'resored' => $restored,
+                    'restored' => $restored,
                 ];
             });
 
