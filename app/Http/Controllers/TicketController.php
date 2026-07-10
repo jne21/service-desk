@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TicketRequest;
 use App\Models\Ticket;
 use App\Models\TicketStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\TicketRequest;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -52,7 +52,7 @@ class TicketController extends Controller
             ->with('success', 'Заявку створено');
     }
 
-    public function show(Ticket $ticket): Response
+    public function show(Request $request, Ticket $ticket): Response
     {
         $this->authorize('view', $ticket);
 
@@ -63,6 +63,9 @@ class TicketController extends Controller
         return Inertia::render('Tickets/Show', [
             'ticket' => $ticket,
             'statuses' => $statuses,
+            'can' => [
+                'delete' => $request->user()->can('delete', $ticket),
+            ],
         ]);
     }
 
@@ -75,5 +78,16 @@ class TicketController extends Controller
         return redirect()
             ->route('tickets.index')
             ->with('success', 'Заявку оновлено');
+    }
+
+    public function destroy(Request $request, Ticket $ticket): RedirectResponse
+    {
+        $this->authorize('delete', $ticket);
+
+        $ticket->deleteBy($request->user());
+
+        return redirect()
+            ->route('tickets.index')
+            ->with('success', 'Заявку видалено.');
     }
 }

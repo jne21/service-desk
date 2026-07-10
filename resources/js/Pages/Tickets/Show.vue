@@ -5,6 +5,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 const props = defineProps({
     ticket: Object,
     statuses: Array,
+    can: Object,
 });
 
 const form = useForm({
@@ -13,8 +14,18 @@ const form = useForm({
     status_id: props.ticket.status_id ?? '',
 });
 
+const deleteForm = useForm({});
+
 const submit = () => {
     form.patch(route('tickets.update', props.ticket.id));
+};
+
+const destroyTicket = () => {
+    if (! confirm('Видалити цю заявку?')) {
+        return;
+    }
+
+    deleteForm.delete(route('tickets.destroy', props.ticket.id));
 };
 </script>
 
@@ -27,6 +38,7 @@ const submit = () => {
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
                     Ticket #{{ ticket.id }}
                 </h2>
+
                 <Link
                     :href="route('tickets.index')"
                     class="text-sm text-gray-600 underline"
@@ -43,9 +55,11 @@ const submit = () => {
                         <div class="mb-6 text-sm text-gray-600">
                             Created by: {{ ticket.user?.name || '—' }} {{ ticket.user?.department?.name || '' }} <span v-if="ticket.user?.role?.name">({{ ticket.user.role.name }})</span>
                         </div>
+
                         <div class="mb-6 text-sm text-gray-600">
                             Department: {{ ticket.department?.name || '—' }}
                         </div>
+
                         <form @submit.prevent="submit" class="space-y-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">
@@ -117,9 +131,20 @@ const submit = () => {
                                 >
                                     Back to list
                                 </Link>
+
+                                <button
+                                    v-if="can?.delete"
+                                    type="button"
+                                    :disabled="deleteForm.processing"
+                                    class="ml-auto rounded bg-red-700 px-4 py-2 text-white disabled:opacity-50"
+                                    @click="destroyTicket"
+                                >
+                                    Delete ticket
+                                </button>
                             </div>
                         </form>
-                        <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+
+                        <div class="mt-6 grid grid-cols-2 gap-4 text-sm text-gray-600">
                             <div>
                                 <div class="text-gray-500">Created</div>
                                 <div>{{ $formatDate(ticket.created_at) }}</div>
@@ -131,7 +156,7 @@ const submit = () => {
                             </div>
                         </div>
 
-                        <div class="border-t pt-6">
+                        <div class="mt-6 border-t pt-6">
                             <h3 class="font-semibold">
                                 Next blocks
                             </h3>

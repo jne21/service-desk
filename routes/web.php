@@ -46,7 +46,11 @@ Route::middleware(['auth'])->group(function () {
     
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])
         ->name('tickets.update');
-});
+
+    Route::delete('/tickets/{ticket}', [TicketController::class, 'destroy'])
+        ->name('tickets.destroy');
+    }
+);
 
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
