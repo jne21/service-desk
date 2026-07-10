@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 use App\Models\User;
 use App\Models\TicketSource;
-use Illuminate\Database\Eloquent\Builder;
 
 class Ticket extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'title',
         'description',
@@ -38,6 +42,20 @@ class Ticket extends Model
     public function source(): BelongsTo
     {
         return $this->belongsTo(TicketSource::class, 'source_id');
+    }
+
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by_user_id');
+    }
+
+    public function deleteBy(User $user): ?bool
+    {
+        $this->forceFill([
+            'deleted_by_user_id' => $user->id,
+        ])->save();
+
+        return $this->delete();
     }
 
     public function scopeVisibleFor(Builder $query, User $user): Builder
