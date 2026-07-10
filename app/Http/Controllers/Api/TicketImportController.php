@@ -38,6 +38,7 @@ class TicketImportController extends Controller
                 $validated['date_from'],
                 $validated['date_to'],
             ])
+            ->orderByDesc('created_at')
             ->orderByDesc('id');
 
         if (! empty($validated['status'])) {

@@ -12,9 +12,10 @@ Route::middleware(['ticket-source'])->group(function () {
     Route::post('/tickets/import', [TicketImportController::class, 'storeAsync'])
         ->middleware('throttle:ticket-import');
 
-    Route::get('/tickets/imports/{ticketImport}', [TicketImportController::class, 'show']);
-
     Route::get('/tickets/imports', [TicketImportController::class, 'index']);
+
+    Route::get('/tickets/imports/{ticketImport}', [TicketImportController::class, 'show'])
+        ->whereNumber('ticketImport');
 
 });
 
