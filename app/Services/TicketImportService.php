@@ -12,7 +12,7 @@ use App\Models\TicketImportStatus;
 
 use App\Events\TicketImportStarted;
 use App\Events\TicketImportFinished;
-use app\Events\TicketImportFailed;
+use App\Events\TicketImportFailed;
 
 class TicketImportService
 {
@@ -31,37 +31,56 @@ class TicketImportService
 
         try {
             $result = DB::transaction(function () use ($source, $tickets) {
-
                 $defaultStatusId = TicketStatus::idByCode(TicketStatus::CODE_NEW);
+                $restoredStatusId = TicketStatus::idByCode(TicketStatus::CODE_RESTORED);
 
                 $created = 0;
                 $updated = 0;
+                $restored = 0;
 
                 foreach ($tickets as $item) {
-                    $ticket = Ticket::updateOrCreate(
-                        [
-                            'source_id' => $source->id,
-                            'external_id' => $item['ticket_id'],
-                        ],
-                        [
-                            'title' => $item['title'],
-                            'description' => $item['description'] ?? null,
-                            'status_id' => $item['status_id'] ?? $defaultStatusId,
-                            'user_id' => $item['user_id'] ?? null,
-                            'department_id' => $item['department_id'] ?? null,
-                        ]
-                    );
+                    $attributes = [
+                        'title' => $item['title'],
+                        'description' => $item['description'] ?? null,
+                        'status_id' => $item['status_id'] ?? $defaultStatusId,
+                        'user_id' => $item['user_id'] ?? null,
+                        'department_id' => $item['department_id'] ?? null,
+                    ];
 
-                    if ($ticket->wasRecentlyCreated) {
-                        $created++;
-                    } else {
-                        $updated++;
+                    $ticket = Ticket::withTrashed()
+                        ->where('source_id', $source->id)
+                        ->where('external_id', $item['ticket_id'])
+                        ->first();
+
+                    if ($ticket) {
+                        if ($ticket->trashed()) {
+                            $attributes['status_id'] = $restoredStatusId;
+                            $attributes['deleted_by_user_id'] = null;
+
+                            $ticket->restore();
+                            $restored++;
+                        } else {
+                            $updated++;
+                        }
+
+                        $ticket->forceFill($attributes)->save();
+
+                        continue;
                     }
+
+                    Ticket::create([
+                        'source_id' => $source->id,
+                        'external_id' => $item['ticket_id'],
+                        ...$attributes,
+                    ]);
+
+                    $created++;
                 }
 
                 return [
                     'created' => $created,
                     'updated' => $updated,
+                    'resored' => $restored,
                 ];
             });
 
@@ -69,6 +88,7 @@ class TicketImportService
                 'status_id' => TicketImportStatus::idByCode(TicketImportStatus::CODE_FINISHED),
                 'created_count' => $result['created'],
                 'updated_count' => $result['updated'],
+                'restored_count' => $result['restored'],
                 'failed_count' => 0,
                 'finished_at' => now(),
             ]);
@@ -77,6 +97,7 @@ class TicketImportService
                 source: $source,
                 created: $result['created'],
                 updated: $result['updated'],
+                restored: $result['restored'],
                 duration: round(microtime(true) - $startedAt, 3),
             );
 

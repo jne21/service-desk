@@ -28,6 +28,7 @@ class TicketImportResource extends JsonResource
             'ticketsCount' => $this->tickets_count,
             'createdCount' => $this->created_count,
             'updatedCount' => $this->updated_count,
+            'restoredCount' => $this->restored_count,
             'failedCount' => $this->failed_count,
 
             'error' => $this->error_message,

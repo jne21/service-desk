@@ -14,6 +14,7 @@ class TicketImportFinished
         public TicketSource $source,
         public int $created,
         public int $updated,
+        public int $restored,
         public float $duration,
     ) {
     }
