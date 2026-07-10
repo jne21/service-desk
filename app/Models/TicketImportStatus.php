@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use App\Models\Concerns\CachesReferenceData;
 
 class TicketImportStatus extends Model
 {
+    use CachesReferenceData;
+
     public const CODE_QUEUED = 'queued';
     public const CODE_PROCESSING = 'processing';
     public const CODE_FINISHED = 'finished';
@@ -35,23 +38,24 @@ class TicketImportStatus extends Model
         return $this->hasMany(TicketImport::class, 'status_id');
     }
 
+    public static function orderedCached(): Collection
+    {
+        return static::rememberReferenceCollection(
+            'ticket_import_statuses:ordered',
+            fn () => static::query()
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get(['id', 'code', 'name', 'sort_order', 'is_final'])
+        );
+    }
+
     public static function idByCode(string $code): int
     {
-        return Cache::rememberForever(
+        return static::rememberReferenceInt(
             "ticket_import_status_id:{$code}",
             fn () => static::query()
                 ->where('code', $code)
                 ->valueOrFail('id')
-        );
-    }
-
-    public static function orderedCached(): Collection
-    {
-        return Cache::rememberForever(
-            'ticket_import_statuses:ordered',
-            fn () => static::query()
-                ->orderBy('sort_order')
-                ->get(['id', 'code', 'name', 'sort_order', 'is_final'])
         );
     }
 }

@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use App\Models\Concerns\CachesReferenceData;
 
 class Department extends Model
 {
+    use CachesReferenceData;
+
     protected $fillable = [
         'name',
     ];
@@ -25,7 +28,7 @@ class Department extends Model
 
     public static function orderedCached(): Collection
     {
-        return Cache::rememberForever(
+        return static::rememberReferenceCollection(
             'departments:ordered',
             fn () => static::query()
                 ->orderBy('name')
