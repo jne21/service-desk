@@ -487,26 +487,6 @@ REDIS_PASSWORD=null
 REDIS_PORT=6379
 ```
 
----
-
-## Приклад import API request
-
-```bash
-curl -X POST http://localhost/api/tickets/import \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -H "X-Import-Token: test-import-token-123" \
-  -d '{
-    "tickets": [
-      {
-        "ticket_id": "1001",
-        "title": "Тестова заявка API",
-        "description": "Перевірка імпорту",
-        "department_id": 1
-      }
-    ]
-  }'
-```
 
 ---
 
@@ -530,7 +510,6 @@ curl -X POST http://localhost/api/tickets/import \
 
 ## Найближчі можливі наступні кроки
 
-- додати endpoint списку імпортів
 - додати item-level diagnostics для імпортів
 - додати тести для API, policies та visibility scope
 - додати історію змін заявки

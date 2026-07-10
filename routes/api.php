@@ -13,6 +13,9 @@ Route::middleware(['ticket-source'])->group(function () {
         ->middleware('throttle:ticket-import');
 
     Route::get('/tickets/imports/{ticketImport}', [TicketImportController::class, 'show']);
+
+    Route::get('/tickets/imports', [TicketImportController::class, 'index']);
+
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
