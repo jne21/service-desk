@@ -13,6 +13,7 @@ class TicketStatus extends Model
     use CachesReferenceData;
 
     public const CODE_NEW = 'new';
+    public const CODE_RESTORED = 'restored';
     public const CODE_IN_PROGRESS = 'in_progress';
     public const CODE_DONE = 'done';
     public const CODE_CANCELLED = 'cancelled';
