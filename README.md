@@ -204,6 +204,40 @@ Job викликає сервіс імпорту, який:
 
 ---
 
+### Scheduler для завислих імпортів
+
+Для обробки імпортів, які зависли у статусі `processing`, додано artisan-команду:
+
+```bash
+php artisan ticket-imports:fail-stale --minutes=15
+```
+Для автоматичної роботи Laravel Scheduler на сервері потрібно додати cron-задачу:
+
+```bash
+* * * * * cd /var/www/service-desk && php artisan schedule:run >> /dev/null 2>&1
+```
+
+```markdown
+Перегляд scheduled-задач:
+
+```bash
+php artisan schedule:list
+```
+
+```markdown
+Ручний запуск scheduler:
+
+```bash
+php artisan schedule:run
+```
+
+```markdown
+Перевірка завислих імпортів вручну:
+
+```bash
+php artisan ticket-imports:fail-stale
+```
+
 ### Статуси імпорту
 
 Реалізовано довідник статусів імпорту:
@@ -451,13 +485,12 @@ curl -X POST http://localhost/api/tickets/import \
 - import diagnostics
 - rate limiting
 - event/listener logging
+- scheduled tasks
 
 ---
 
 ## Найближчі можливі наступні кроки
 
-- додати `TicketStatus::idByCode()` з кешем
-- зробити scheduler для завислих імпортів у статусі `processing`
 - налаштувати `failed_jobs`
 - додати systemd service або supervisor для queue worker
 - додати endpoint списку імпортів
