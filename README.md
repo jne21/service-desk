@@ -202,6 +202,19 @@ Job викликає сервіс імпорту, який:
 - переводить імпорт у статус `finished`
 - у разі помилки переводить імпорт у статус `failed`
 
+Якщо queued job завершується помилкою після вичерпання спроб, Laravel записує його у таблицю `failed_jobs`.
+
+Це технічний механізм Laravel Queue і він відрізняється від бізнес-статусу імпорту `ticket_imports.status_id = failed`.
+
+- `ticket_imports.status_id = failed` показує, що конкретний імпорт завершився з помилкою
+- `failed_jobs` показує, що Laravel job впав на рівні черги
+
+Переглянути failed jobs можна командою:
+
+```bash
+php artisan queue:failed
+```
+
 ---
 
 ### Scheduler для завислих імпортів
@@ -234,6 +247,35 @@ php artisan schedule:run
 ```bash
 php artisan ticket-imports:fail-stale
 ```
+Повторний запуск усіх failed jobs:
+```bash
+php artisan queue:retry all
+```
+Видалення всіх failed jobs:
+```bash
+php artisan queue:flush
+```
+
+---
+
+Запуск queue worker:
+
+```bash
+php artisan queue:work redis
+```
+
+Докладніше про постійний запуск queue worker через Supervisor:
+
+```text
+docs/supervisor.md
+```
+
+Приклад Supervisor-конфігурації:
+
+```text
+deploy/supervisor/service-desk-worker.conf.example
+```
+---
 
 ### Статуси імпорту
 
@@ -488,8 +530,6 @@ curl -X POST http://localhost/api/tickets/import \
 
 ## Найближчі можливі наступні кроки
 
-- налаштувати `failed_jobs`
-- додати systemd service або supervisor для queue worker
 - додати endpoint списку імпортів
 - додати item-level diagnostics для імпортів
 - додати тести для API, policies та visibility scope
