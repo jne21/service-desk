@@ -36,4 +36,25 @@ class TicketPolicy
     {
         return true;
     }
+
+    public function delete(User $user, Ticket $ticket): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->department_id === null) {
+            return false;
+        }
+
+        if ($user->isManager()) {
+            if ($ticket->department_id !== $user->department_id) {
+                return false;
+            }
+
+            return ! $ticket->status?->is_final;
+        }
+
+        return false;
+    }
 }

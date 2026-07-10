@@ -22,6 +22,7 @@ class User extends Authenticatable
     use HasApiTokens;
     
     private const ROLE_ADMIN_ID = 1;
+    private const ROLE_MANAGER_ID = 3;
 
     protected $fillable = [
         'name',
@@ -68,6 +69,11 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role_id === self::ROLE_ADMIN_ID;
+    }
+
+    public function isManager(): bool
+    {
+        return $this->role_id === self::ROLE_MANAGER_ID;
     }
     
 }
