@@ -217,21 +217,18 @@ php artisan ticket-imports:fail-stale --minutes=15
 * * * * * cd /var/www/service-desk && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-```markdown
 Перегляд scheduled-задач:
 
 ```bash
 php artisan schedule:list
 ```
 
-```markdown
 Ручний запуск scheduler:
 
 ```bash
 php artisan schedule:run
 ```
 
-```markdown
 Перевірка завислих імпортів вручну:
 
 ```bash
