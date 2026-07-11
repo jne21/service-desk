@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use App\Services\TicketChangeLogger;
+use App\Services\Contracts\TicketChangeLoggerInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,9 +17,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            TicketChangeLoggerInterface::class,
+            TicketChangeLogger::class
+        );
     }
-
+    
     /**
      * Bootstrap any application services.
      */

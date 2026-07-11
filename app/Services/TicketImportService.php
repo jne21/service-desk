@@ -13,9 +13,16 @@ use App\Models\TicketImportStatus;
 use App\Events\TicketImportStarted;
 use App\Events\TicketImportFinished;
 use App\Events\TicketImportFailed;
+use App\Services\Contracts\TicketChangeLoggerInterface;
 
 class TicketImportService
 {
+    public function __construct(
+        private readonly TicketChangeLoggerInterface $changeLogger
+    ) {
+        //
+    }
+
     public function import(TicketSource $source, array $tickets, TicketImport $ticketImport): array
     {
         $startedAt = microtime(true);
@@ -47,6 +54,7 @@ class TicketImportService
                         'department_id' => $item['department_id'] ?? null,
                     ];
 
+                    /** @var Ticket $ticket */
                     $ticket = Ticket::withTrashed()
                         ->where('source_id', $source->id)
                         ->where('external_id', $item['ticket_id'])
@@ -56,15 +64,37 @@ class TicketImportService
                         if ($ticket->trashed()) {
                             $attributes['status_id'] = $restoredStatusId;
                             $attributes['deleted_by_user_id'] = null;
-
+                    
+                            $changes = $this->changeLogger->buildChanges($ticket, $attributes);
+                    
                             $ticket->restore();
+                            $ticket->forceFill($attributes)->save();
+                    
+                            $this->changeLogger->logSourceAction(
+                                ticket: $ticket,
+                                source: $source,
+                                event: TicketChangeLoggerInterface::EVENT_RESTORED,
+                                changes: $changes,
+                            );
+                    
                             $restored++;
                         } else {
+                            $changes = $this->changeLogger->buildChanges($ticket, $attributes);
+                    
+                            $ticket->forceFill($attributes)->save();
+                    
+                            if ($changes !== []) {
+                                $this->changeLogger->logSourceAction(
+                                    ticket: $ticket,
+                                    source: $source,
+                                    event: TicketChangeLoggerInterface::EVENT_UPDATED,
+                                    changes: $changes,
+                                );
+                            }
+                    
                             $updated++;
                         }
-
-                        $ticket->forceFill($attributes)->save();
-
+                    
                         continue;
                     }
 
@@ -73,6 +103,12 @@ class TicketImportService
                         'external_id' => $item['ticket_id'],
                         ...$attributes,
                     ]);
+
+                    $this->changeLogger->logSourceAction(
+                        ticket: $ticket,
+                        source: $source,
+                        event: TicketChangeLoggerInterface::EVENT_CREATED,
+                    );
 
                     $created++;
                 }

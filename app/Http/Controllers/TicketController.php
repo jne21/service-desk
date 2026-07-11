@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TicketRequest;
 use App\Models\Ticket;
 use App\Models\TicketStatus;
+use App\Services\Contracts\TicketChangeLoggerInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -37,15 +38,23 @@ class TicketController extends Controller
         ]);
     }
 
-    public function store(TicketRequest $request): RedirectResponse
-    {
+    public function store(
+        TicketRequest $request,
+        TicketChangeLoggerInterface $changeLogger
+    ): RedirectResponse {
         $this->authorize('create', Ticket::class);
-        
-        Ticket::create([
+
+        $ticket = Ticket::create([
             ...$request->validated(),
             'user_id' => $request->user()->id,
             'department_id' => $request->user()->department_id,
         ]);
+
+        $changeLogger->logUserAction(
+            ticket: $ticket,
+            user: $request->user(),
+            event: TicketChangeLoggerInterface::EVENT_CREATED,
+        );
 
         return redirect()
             ->route('tickets.index')
@@ -69,22 +78,47 @@ class TicketController extends Controller
         ]);
     }
 
-    public function update(TicketRequest $request, Ticket $ticket): RedirectResponse
-    {
+    public function update(
+        TicketRequest $request,
+        Ticket $ticket,
+        TicketChangeLoggerInterface $changeLogger
+    ): RedirectResponse {
         $this->authorize('update', $ticket);
 
-        $ticket->update($request->validated());
+        $validated = $request->validated();
+
+        $changes = $changeLogger->buildChanges($ticket, $validated);
+
+        $ticket->update($validated);
+
+        if ($changes !== []) {
+            $changeLogger->logUserAction(
+                ticket: $ticket,
+                user: $request->user(),
+                event: TicketChangeLoggerInterface::EVENT_UPDATED,
+                changes: $changes,
+            );
+        }
 
         return redirect()
             ->route('tickets.index')
             ->with('success', 'Заявку оновлено');
     }
 
-    public function destroy(Request $request, Ticket $ticket): RedirectResponse
-    {
+    public function destroy(
+        Request $request,
+        Ticket $ticket,
+        TicketChangeLoggerInterface $changeLogger
+    ): RedirectResponse {
         $this->authorize('delete', $ticket);
 
         $ticket->deleteBy($request->user());
+
+        $changeLogger->logUserAction(
+            ticket: $ticket,
+            user: $request->user(),
+            event: TicketChangeLoggerInterface::EVENT_DELETED,
+        );
 
         return redirect()
             ->route('tickets.index')
