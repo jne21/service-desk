@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TicketRequest;
+use App\Http\Resources\TicketChangeResource;
 use App\Models\Ticket;
 use App\Models\TicketStatus;
 use App\Services\Contracts\TicketChangeLoggerInterface;
@@ -66,12 +67,18 @@ class TicketController extends Controller
         $this->authorize('view', $ticket);
 
         $ticket->load(['status', 'user.role', 'department']);
-
+        
         $statuses = TicketStatus::orderedCached();
+
+        $changes = $ticket->changes()
+            ->with(['user', 'source'])
+            ->latest()
+            ->get();
 
         return Inertia::render('Tickets/Show', [
             'ticket' => $ticket,
             'statuses' => $statuses,
+            'changes' => TicketChangeResource::collection($changes)->resolve(),
             'can' => [
                 'delete' => $request->user()->can('delete', $ticket),
             ],

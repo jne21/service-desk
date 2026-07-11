@@ -5,6 +5,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 const props = defineProps({
     ticket: Object,
     statuses: Array,
+    changes: Array,
     can: Object,
 });
 
@@ -158,11 +159,66 @@ const destroyTicket = () => {
 
                         <div class="mt-6 border-t pt-6">
                             <h3 class="font-semibold">
-                                Next blocks
+                                Історія змін
                             </h3>
 
-                            <div class="mt-2 text-sm text-gray-600">
-                                Тут пізніше будуть коментарі, файли, історія статусів і історія змін.
+                            <div v-if="!changes?.length" class="mt-2 text-sm text-gray-600">
+                                Історії змін поки немає.
+                            </div>
+
+                            <div v-else class="mt-4 space-y-4">
+                                <div
+                                    v-for="change in changes"
+                                    :key="change.id"
+                                    class="rounded border bg-gray-50 p-4 text-sm"
+                                >
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div>
+                                            <div class="font-medium text-gray-900">
+                                                {{ change.event_label }}
+                                            </div>
+
+                                            <div class="mt-1 text-gray-600">
+                                                {{ change.actor.label }}
+                                            </div>
+                                        </div>
+
+                                        <div class="shrink-0 text-xs text-gray-500">
+                                            {{ change.created_at_label }}
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        v-if="change.fields.length"
+                                        class="mt-3 space-y-2"
+                                    >
+                                        <div
+                                            v-for="field in change.fields"
+                                            :key="field.field"
+                                            class="rounded bg-white p-2"
+                                        >
+                                            <div class="text-xs font-medium text-gray-500">
+                                                {{ field.label }}
+                                            </div>
+
+                                            <div class="mt-1 grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <div class="text-xs text-gray-400">Було</div>
+                                                    <div class="text-gray-700">
+                                                        {{ field.old.label }}
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <div class="text-xs text-gray-400">Стало</div>
+                                                    <div class="text-gray-900">
+                                                        {{ field.new.label }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
