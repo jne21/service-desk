@@ -33,6 +33,7 @@ class UserTicketIndexRequest extends FormRequest
             'date_from.date' => 'Параметр date_from має бути коректною датою.',
             'date_to.date' => 'Параметр date_to має бути коректною датою.',
             'date_to.after_or_equal' => 'Параметр date_to має бути не раніше date_from.',
+            
             'page.integer' => 'Параметр page має бути числом.',
             'page.min' => 'Параметр page має бути більше 0.',
             'per_page.integer' => 'Параметр per_page має бути числом.',

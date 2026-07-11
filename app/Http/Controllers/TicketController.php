@@ -17,6 +17,7 @@ class TicketController extends Controller
     public function index(Request $request): Response
     {
         //$user = $request->user();
+        
         return Inertia::render('Tickets/Index');
     }
 
