@@ -16,16 +16,8 @@ class TicketController extends Controller
 {
     public function index(Request $request): Response
     {
-        $user = $request->user();
-
-        $query = Ticket::query()
-            ->with('status', 'user', 'department')
-            ->visibleFor($user)
-            ->latest();
-
-        return Inertia::render('Tickets/Index', [
-            'tickets' => $query->paginate(20),
-        ]);
+        //$user = $request->user();
+        return Inertia::render('Tickets/Index');
     }
 
     public function create(): Response
