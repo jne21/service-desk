@@ -18,7 +18,8 @@ use App\Services\Contracts\TicketChangeLoggerInterface;
 class TicketImportService
 {
     public function __construct(
-        private readonly TicketChangeLoggerInterface $changeLogger
+        private readonly TicketChangeLoggerInterface $changeLogger,
+        private readonly TicketRealtimeNotifier $realtimeNotifier
     ) {
         //
     }
@@ -37,7 +38,9 @@ class TicketImportService
         );
 
         try {
-            $result = DB::transaction(function () use ($source, $tickets) {
+            $realtimeEvents = [];
+
+            $result = DB::transaction(function () use ($source, $tickets, &$realtimeEvents) {
                 $defaultStatusId = TicketStatus::idByCode(TicketStatus::CODE_NEW);
                 $restoredStatusId = TicketStatus::idByCode(TicketStatus::CODE_RESTORED);
 
@@ -61,28 +64,35 @@ class TicketImportService
                         ->first();
 
                     if ($ticket) {
+                        $oldDepartmentId = $ticket->department_id;
+
                         if ($ticket->trashed()) {
                             $attributes['status_id'] = $restoredStatusId;
                             $attributes['deleted_by_user_id'] = null;
-                    
+
                             $changes = $this->changeLogger->buildChanges($ticket, $attributes);
-                    
+
                             $ticket->restore();
                             $ticket->forceFill($attributes)->save();
-                    
+
                             $this->changeLogger->logSourceAction(
                                 ticket: $ticket,
                                 source: $source,
                                 event: TicketChangeLoggerInterface::EVENT_RESTORED,
                                 changes: $changes,
                             );
-                    
+
+                            $realtimeEvents[] = [
+                                'type' => TicketRealtimeNotifier::TYPE_RESTORED,
+                                'ticket_id' => $ticket->id,
+                            ];
+
                             $restored++;
                         } else {
                             $changes = $this->changeLogger->buildChanges($ticket, $attributes);
-                    
+
                             $ticket->forceFill($attributes)->save();
-                    
+
                             if ($changes !== []) {
                                 $this->changeLogger->logSourceAction(
                                     ticket: $ticket,
@@ -90,13 +100,19 @@ class TicketImportService
                                     event: TicketChangeLoggerInterface::EVENT_UPDATED,
                                     changes: $changes,
                                 );
+
+                                $realtimeEvents[] = [
+                                    'type' => TicketRealtimeNotifier::TYPE_UPDATED,
+                                    'ticket_id' => $ticket->id,
+                                    'old_department_id' => $oldDepartmentId,
+                                ];
                             }
-                    
+
                             $updated++;
                         }
-                    
+
                         continue;
-                    }
+                    }                    
 
                     Ticket::create([
                         'source_id' => $source->id,
@@ -110,6 +126,11 @@ class TicketImportService
                         event: TicketChangeLoggerInterface::EVENT_CREATED,
                     );
 
+                    $realtimeEvents[] = [
+                        'type' => TicketRealtimeNotifier::TYPE_CREATED,
+                        'ticket_id' => $ticket->id,
+                    ];
+
                     $created++;
                 }
 
@@ -120,6 +141,8 @@ class TicketImportService
                 ];
             });
 
+            $this->dispatchRealtimeEvents($realtimeEvents);
+            
             $ticketImport->update([
                 'status_id' => TicketImportStatus::idByCode(TicketImportStatus::CODE_FINISHED),
                 'created_count' => $result['created'],

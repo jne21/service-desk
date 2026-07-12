@@ -6,6 +6,7 @@ use App\Http\Requests\TicketRequest;
 use App\Http\Resources\TicketChangeResource;
 use App\Models\Ticket;
 use App\Models\TicketStatus;
+use App\Services\TicketRealtimeNotifier;
 use App\Services\Contracts\TicketChangeLoggerInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,9 +17,16 @@ class TicketController extends Controller
 {
     public function index(Request $request): Response
     {
-        //$user = $request->user();
-        
-        return Inertia::render('Tickets/Index');
+        $user = $request->user();
+
+        return Inertia::render('Tickets/Index', [
+            'realtime' => [
+                'enabled' => ! $user->isAdmin() && $user->department_id !== null,
+                'channel' => $user->department_id !== null
+                    ? "ticket-list.departments.{$user->department_id}"
+                    : null,
+            ],
+        ]);
     }
 
     public function create(): Response
@@ -34,7 +42,8 @@ class TicketController extends Controller
 
     public function store(
         TicketRequest $request,
-        TicketChangeLoggerInterface $changeLogger
+        TicketChangeLoggerInterface $changeLogger,
+        TicketRealtimeNotifier $realtimeNotifier
     ): RedirectResponse {
         $this->authorize('create', Ticket::class);
 
@@ -49,6 +58,8 @@ class TicketController extends Controller
             user: $request->user(),
             event: TicketChangeLoggerInterface::EVENT_CREATED,
         );
+
+        $realtimeNotifier->created($ticket);
 
         return redirect()
             ->route('tickets.index')
@@ -81,13 +92,16 @@ class TicketController extends Controller
     public function update(
         TicketRequest $request,
         Ticket $ticket,
-        TicketChangeLoggerInterface $changeLogger
+        TicketChangeLoggerInterface $changeLogger,
+        TicketRealtimeNotifier $realtimeNotifier
     ): RedirectResponse {
         $this->authorize('update', $ticket);
 
         $validated = $request->validated();
 
         $changes = $changeLogger->buildChanges($ticket, $validated);
+
+        $oldDepartmentId = $ticket->department_id;
 
         $ticket->update($validated);
 
@@ -97,6 +111,13 @@ class TicketController extends Controller
                 user: $request->user(),
                 event: TicketChangeLoggerInterface::EVENT_UPDATED,
                 changes: $changes,
+            );
+
+            $ticket->refresh();
+
+            $realtimeNotifier->updated(
+                ticket: $ticket,
+                oldDepartmentId: $oldDepartmentId,
             );
         }
 
@@ -108,7 +129,8 @@ class TicketController extends Controller
     public function destroy(
         Request $request,
         Ticket $ticket,
-        TicketChangeLoggerInterface $changeLogger
+        TicketChangeLoggerInterface $changeLogger,
+        TicketRealtimeNotifier $realtimeNotifier
     ): RedirectResponse {
         $this->authorize('delete', $ticket);
 
@@ -119,6 +141,8 @@ class TicketController extends Controller
             user: $request->user(),
             event: TicketChangeLoggerInterface::EVENT_DELETED,
         );
+
+        $realtimeNotifier->deleted($ticket);
 
         return redirect()
             ->route('tickets.index')

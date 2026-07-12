@@ -1,7 +1,113 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+
+/** Real time notification support */
+const props = defineProps({
+    realtime: Object,
+});
+
+const notification = ref(null);
+
+let notificationTimer = null;
+
+const showNotification = (message) => {
+    notification.value = message;
+
+    if (notificationTimer) {
+        clearTimeout(notificationTimer);
+    }
+
+    notificationTimer = setTimeout(() => {
+        notification.value = null;
+    }, 5000);
+};
+
+/** Real time syncronization support */
+
+const highlightedTicketIds = ref([]);
+
+const highlightTicket = (ticketId) => {
+    highlightedTicketIds.value = [
+        ...highlightedTicketIds.value.filter((id) => id !== ticketId),
+        ticketId,
+    ];
+
+    setTimeout(() => {
+        highlightedTicketIds.value = highlightedTicketIds.value.filter(
+            (id) => id !== ticketId,
+        );
+    }, 5000);
+};
+
+const isHighlighted = (ticketId) => {
+    return highlightedTicketIds.value.includes(ticketId);
+};
+
+const prependTicket = (ticket) => {
+    tickets.value = [
+        ticket,
+        ...tickets.value.filter((item) => item.id !== ticket.id),
+    ].slice(0, pagination.value.perPage);
+};
+
+const replaceTicket = (ticket) => {
+    tickets.value = tickets.value.map((item) => {
+        if (item.id !== ticket.id) {
+            return item;
+        }
+
+        return ticket;
+    });
+};
+
+const removeTicket = (ticketId) => {
+    tickets.value = tickets.value.filter((item) => item.id !== ticketId);
+};
+
+const hasTicketInCurrentList = (ticketId) => {
+    return tickets.value.some((item) => item.id === ticketId);
+};
+
+/** Ticket Changed handler */
+
+const handleTicketChanged = (event) => {
+    if (event.type === 'created' || event.type === 'restored') {
+        showNotification('Є нова або відновлена заявка.');
+
+        if (pagination.value.currentPage === 1 && event.ticket) {
+            prependTicket(event.ticket);
+            highlightTicket(event.ticket.id);
+        }
+
+        return;
+    }
+
+    if (event.type === 'updated') {
+        showNotification('Заявку оновлено.');
+
+        if (event.ticket && hasTicketInCurrentList(event.ticket.id)) {
+            replaceTicket(event.ticket);
+            highlightTicket(event.ticket.id);
+        }
+
+        return;
+    }
+
+    if (
+        event.type === 'deleted'
+        || event.type === 'removed_from_access'
+    ) {
+        showNotification('Заявка більше не доступна у цьому списку.');
+
+        removeTicket(event.ticket_id);
+
+        return;
+    }
+};
+
+/** UX */
 
 const tickets = ref([]);
 const pagination = ref({
@@ -53,7 +159,24 @@ const goToPage = (page) => {
 
 onMounted(() => {
     loadTickets();
+
+    if (props.realtime?.enabled && props.realtime?.channel) {
+        window.Echo
+            .private(props.realtime.channel)
+            .listen('.ticket.changed', handleTicketChanged);
+    }
 });
+
+onUnmounted(() => {
+    if (props.realtime?.enabled && props.realtime?.channel) {
+        window.Echo.leave(`private-${props.realtime.channel}`);
+    }
+
+    if (notificationTimer) {
+        clearTimeout(notificationTimer);
+    }
+});
+
 </script>
 
 <template>
@@ -85,6 +208,12 @@ onMounted(() => {
                         >
                             {{ error }}
                         </div>
+                        <div
+                            v-if="notification"
+                            class="mb-4 rounded border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700"
+                        >
+                            {{ notification }}
+                        </div>
 
                         <div
                             v-if="loading"
@@ -109,6 +238,9 @@ onMounted(() => {
                                 <tr
                                     v-for="ticket in tickets"
                                     :key="ticket.id"
+                                    :class="{
+                                        'bg-yellow-100 transition-colors duration-500': isHighlighted(ticket.id),
+                                    }"
                                 >
                                     <td>{{ ticket.id }}</td>
 
